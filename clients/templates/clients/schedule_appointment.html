@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #023859;
+            --secondary-blue: #a7ebf2;
+            --light-blue: #e8f8fa;
+            --success-green: #28a745;
+            --warning-orange: #ffc107;
+            --danger-red: #dc3545;
+            --info-cyan: #17a2b8;
+            --dark-gray: #2c3e50;
+            --light-gray: #6c757d;
+            --border-radius: 12px;
+            --shadow-light: 0 2px 10px rgba(2, 56, 89, 0.1);
+            --shadow-medium: 0 4px 20px rgba(2, 56, 89, 0.15);
+            --shadow-heavy: 0 8px 30px rgba(2, 56, 89, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%) !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            color: var(--dark-gray) !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .schedule-container {
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .schedule-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--shadow-heavy);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(167, 235, 242, 0.3);
+        }
+
+        .schedule-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedule-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .time-slot-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(167, 235, 242, 0.5);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+        }
+
+        .time-slot-card:hover {
+            border-color: var(--secondary-blue);
+            background-color: rgba(167, 235, 242, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .time-slot-card.selected {
+            border-color: var(--primary-blue);
+            background: linear-gradient(135deg, rgba(167, 235, 242, 0.2), rgba(2, 56, 89, 0.1));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .time-slot-card.unavailable {
+            background-color: rgba(248, 249, 250, 0.8);
+            border-color: #dee2e6;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .price-info {
+            background: linear-gradient(135deg, rgba(167, 235, 242, 0.2), rgba(232, 248, 250, 0.8));
+            border: 1px solid rgba(167, 235, 242, 0.5);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-light:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-green), #20c997);
+            border: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--light-gray), #95a5a6);
+            border: none;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-control, .form-select {
+            border: 1px solid rgba(167, 235, 242, 0.5);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(167, 235, 242, 0.25);
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .text-primary {
+            color: var(--primary-blue) !important;
+        }
+
+        h5 {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="schedule-container">
+        <div class="container">
+            <div class="schedule-card fade-in">
+                <div class="schedule-header p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-2">
+                                <i class="fas fa-calendar-plus me-2"></i>{{ title }}
+                            </h2>
+                            <p class="mb-0 opacity-75">Choose your preferred date and time</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'clients:dashboard' %}" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+        <div class="p-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show slide-up" role="alert">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Date Selection -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="fas fa-calendar-day me-2"></i>Step 1: Select Date
+                    </h5>
+                    <form method="get" class="d-flex align-items-end gap-3">
+                        <div class="flex-grow-1">
+                            {{ date_form.selected_date.label_tag }}
+                            {{ date_form.selected_date }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>View Available Times
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if selected_date %}
+            <!-- Available Time Slots -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="fas fa-clock me-2"></i>Step 2: Available Time Slots for {{ selected_date }}
+                    </h5>
+                    
+                    {% if available_slots %}
+                        <div class="row">
+                            {% for slot in available_slots %}
+                            <div class="col-md-4 mb-3">
+                                <div class="time-slot-card slide-up {% if not slot.is_available %}unavailable{% endif %}" 
+                                     data-slot-id="{{ slot.id }}"
+                                     onclick="selectTimeSlot({{ slot.id }}, '{{ slot.start_time }}', '{{ slot.end_time }}')">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">{{ slot.start_time }} - {{ slot.end_time }}</h6>
+                                            <small class="text-muted">
+                                                {{ slot.available_spots }} of {{ slot.max_capacity }} spots available
+                                            </small>
+                                        </div>
+                                        <div>
+                                            {% if slot.is_available %}
+                                                <i class="fas fa-check-circle text-success fa-lg"></i>
+                                            {% else %}
+                                                <i class="fas fa-times-circle text-danger fa-lg"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No available time slots for this date. Please select a different date.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            {% if available_slots %}
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="fas fa-car-side me-2"></i>Step 3: Booking Details
+                    </h5>
+                    
+                    <!-- Service Pricing Info -->
+                    <div class="price-info mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-tags me-2 text-primary"></i>Service Packages
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-soap fa-lg text-primary me-2"></i>
+                                    <div>
+                                        <strong class="text-primary">Basic Wash - $15</strong><br>
+                                        <small class="text-muted">Exterior wash & dry</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-star fa-lg text-warning me-2"></i>
+                                    <div>
+                                        <strong class="text-primary">Premium Wash - $25</strong><br>
+                                        <small class="text-muted">Exterior + Interior clean</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-crown fa-lg text-success me-2"></i>
+                                    <div>
+                                        <strong class="text-primary">Deluxe Wash - $35</strong><br>
+                                        <small class="text-muted">Full service + wax</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                            <form method="post" id="appointmentForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="date" value="{{ selected_date }}">
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ appointment_form.vehicle.id_for_label }}" class="form-label">Select Vehicle *</label>
+                                        {{ appointment_form.vehicle }}
+                                        {% if appointment_form.vehicle.errors %}
+                                            <div class="text-danger small">{{ appointment_form.vehicle.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ appointment_form.time_slot.id_for_label }}" class="form-label">Time Slot *</label>
+                                        {{ appointment_form.time_slot }}
+                                        {% if appointment_form.time_slot.errors %}
+                                            <div class="text-danger small">{{ appointment_form.time_slot.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ appointment_form.wash_type.id_for_label }}" class="form-label">Service Package *</label>
+                                        {{ appointment_form.wash_type }}
+                                        {% if appointment_form.wash_type.errors %}
+                                            <div class="text-danger small">{{ appointment_form.wash_type.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ appointment_form.special_instructions.id_for_label }}" class="form-label">Special Instructions</label>
+                                        {{ appointment_form.special_instructions }}
+                                        {% if appointment_form.special_instructions.errors %}
+                                            <div class="text-danger small">{{ appointment_form.special_instructions.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if appointment_form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ appointment_form.non_field_errors.0 }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'clients:dashboard' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-calendar-check me-2"></i>Schedule Appointment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectTimeSlot(slotId, startTime, endTime) {
+            // Remove previous selections
+            document.querySelectorAll('.time-slot-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Select the clicked slot
+            const selectedCard = document.querySelector(`[data-slot-id="${slotId}"]`);
+            if (selectedCard && !selectedCard.classList.contains('unavailable')) {
+                selectedCard.classList.add('selected');
+                
+                // Update the form field
+                const timeSlotSelect = document.querySelector('#id_time_slot');
+                if (timeSlotSelect) {
+                    timeSlotSelect.value = slotId;
+                }
+            }
+        }
+
+        // Auto-select time slot if only one is available
+        document.addEventListener('DOMContentLoaded', function() {
+            const availableSlots = document.querySelectorAll('.time-slot-card:not(.unavailable)');
+            if (availableSlots.length === 1) {
+                availableSlots[0].click();
+            }
+        });
+    </script>
+</body>
+</html>

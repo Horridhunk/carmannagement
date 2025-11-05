@@ -1,0 +1,297 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-users me-2"></i>{{ title }}</h2>
+                            <p class="mb-0">{{ clients|length }} Total Clients</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'carwash_admin:dashboard' %}" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Search Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="clientSearch" placeholder="Search clients by name or email...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4 class="text-primary">{{ clients|length }}</h4>
+                                    <p class="text-muted">Total Clients</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4 class="text-success">{{ active_clients|default:0 }}</h4>
+                                    <p class="text-muted">Active Clients</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4 class="text-info">{{ new_clients_today|default:0 }}</h4>
+                                    <p class="text-muted">New Today</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4 class="text-warning">{{ vip_clients|default:0 }}</h4>
+                                    <p class="text-muted">VIP Clients</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clients List -->
+                    {% if clients %}
+                        <div class="row" id="clientsGrid">
+                            {% for client in clients %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <strong>{{ client.first_name|first }}{{ client.last_name|first }}</strong>
+                                            </div>
+                                            <div>
+                                                <h5 class="card-title mb-1">{{ client.first_name }} {{ client.last_name }}</h5>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-envelope me-1"></i>{{ client.email }}
+                                                </small>
+                                                {% if client.phone %}
+                                                <br><small class="text-muted">
+                                                    <i class="fas fa-phone me-1"></i>{{ client.phone }}
+                                                </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row text-center mb-3">
+                                            <div class="col-4">
+                                                <strong>{{ client.total_orders|default:0 }}</strong>
+                                                <br><small class="text-muted">Orders</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <strong>${{ client.total_spent|default:0 }}</strong>
+                                                <br><small class="text-muted">Spent</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <strong>{{ client.date_created|timesince|truncatewords:1 }}</strong>
+                                                <br><small class="text-muted">Member</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#clientModal{{ client.client_id }}">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </button>
+                                            <button class="btn btn-danger btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#deleteModal{{ client.client_id }}">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-5x text-muted mb-3"></i>
+                            <h4>No Clients Found</h4>
+                            <p class="text-muted">Your client database is empty. New clients will appear here once they register.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client Details Modals -->
+{% for client in clients %}
+<div class="modal fade" id="clientModal{{ client.client_id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <div class="d-flex align-items-center">
+                    <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+                        <strong>{{ client.first_name|first }}{{ client.last_name|first }}</strong>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0">{{ client.first_name }} {{ client.last_name }}</h5>
+                        <small>Client ID: #{{ client.client_id }}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-primary">{{ client.total_orders|default:0 }}</h4>
+                                <p class="text-muted">Total Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-success">${{ client.total_spent|default:0 }}</h4>
+                                <p class="text-muted">Total Spent</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6><i class="fas fa-info-circle me-2 text-primary"></i>Contact Information</h6>
+                    <table class="table">
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ client.email }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phone:</strong></td>
+                            <td>{{ client.phone|default:"Not provided" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Member Since:</strong></td>
+                            <td>{{ client.date_created|date:"F d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Last Activity:</strong></td>
+                            <td>{{ client.last_login|date:"F d, Y"|default:"Never logged in" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal{{ client.client_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                        <strong>{{ client.first_name|first }}{{ client.last_name|first }}</strong>
+                    </div>
+                    <h5>{{ client.first_name }} {{ client.last_name }}</h5>
+                    <p class="text-muted">{{ client.email }}</p>
+                </div>
+                
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action will permanently delete this client and all associated data. This cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="{% url 'carwash_admin:delete_client' client.client_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Forever
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('clientSearch');
+    const clientCards = document.querySelectorAll('#clientsGrid .col-md-6');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        clientCards.forEach(card => {
+            const name = card.querySelector('.card-title').textContent.toLowerCase();
+            const email = card.querySelector('.text-muted').textContent.toLowerCase();
+            
+            if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        
+        clientCards.forEach(card => {
+            if (!selectedStatus) {
+                card.style.display = 'block';
+            } else {
+                // Add your filter logic here based on client status
+                card.style.display = 'block';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .form-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 100%;
+        }
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .price-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .price-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-header p-4 text-center">
+                <h2><i class="fas fa-soap"></i> {{ title }}</h2>
+                <p class="mb-0">Schedule your car wash service</p>
+            </div>
+            
+            <div class="p-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Service Pricing Info -->
+                <div class="mb-4">
+                    <h5><i class="fas fa-tags"></i> Service Packages</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="price-card text-center">
+                                <h6 class="text-primary">Basic Wash</h6>
+                                <h4 class="text-success">$15</h4>
+                                <small class="text-muted">Exterior wash & dry</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="price-card text-center">
+                                <h6 class="text-primary">Premium Wash</h6>
+                                <h4 class="text-success">$25</h4>
+                                <small class="text-muted">Exterior + Interior clean</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="price-card text-center">
+                                <h6 class="text-primary">Deluxe Wash</h6>
+                                <h4 class="text-success">$35</h4>
+                                <small class="text-muted">Full service + wax</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.vehicle.id_for_label }}" class="form-label">Select Vehicle *</label>
+                        {{ form.vehicle }}
+                        {% if form.vehicle.errors %}
+                            <div class="text-danger small">{{ form.vehicle.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Choose which vehicle you want to wash</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.wash_type.id_for_label }}" class="form-label">Wash Package *</label>
+                        {{ form.wash_type }}
+                        {% if form.wash_type.errors %}
+                            <div class="text-danger small">{{ form.wash_type.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Select your preferred wash package</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">Special Instructions</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Any special requests or areas that need extra attention</div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> We will automatically assign an available washer to your order. 
+                        You'll receive confirmation once your order is processed.
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'clients:dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check"></i> Book Wash Service
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+/* Washers Management Page Specific Styles */
+
+/* Force center alignment for washers header */
+.washers-header {
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%) !important;
+    color: white !important;
+    padding: 50px 35px !important;
+    position: relative;
+    overflow: hidden;
+    text-align: center !important;
+}
+
+.washers-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+.washers-header .header-content {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    text-align: center !important;
+}
+
+.washers-header .header-back-btn {
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
+    z-index: 10 !important;
+}
+
+.washers-header .header-main-content {
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.washers-header .header-icon {
+    width: 120px !important;
+    height: 120px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    margin: 0 auto 25px auto !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.washers-header .header-text {
+    text-align: center !important;
+}
+
+.washers-header .header-text h2 {
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+    text-align: center !important;
+    color: white !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.washers-header .header-text p {
+    font-size: 1.3rem !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: 25px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    text-decoration: none !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .washers-header {
+        padding: 40px 20px 60px 20px !important;
+    }
+    
+    .washers-header .header-content {
+        padding-top: 40px !important;
+    }
+    
+    .washers-header .header-back-btn {
+        position: static !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .washers-header .header-text h2 {
+        font-size: 2.2rem !important;
+    }
+    
+    .washers-header .header-icon {
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .washers-header .header-text h2 {
+        font-size: 1.8rem !important;
+    }
+    
+    .washers-header .header-text p {
+        font-size: 1.1rem !important;
+    }
+}

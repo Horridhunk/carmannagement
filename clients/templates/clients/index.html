@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Carwash - Premium Auto Care</title>
+
+    <!-- Added import links -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#0078d4" />
+    <link rel="stylesheet" href="{% static 'clients/styles.css' %}" />
+</head>
+<body>
+    <!-- Added top navigation -->
+    <nav class="site-nav" aria-label="Primary">
+        <a href="/" class="brand">Modern Carwash</a>
+        <div class="nav-inner">
+            <ul class="nav-links" role="menubar">
+            </ul>
+        </div>
+
+    </nav>
+
+    <div class="hero-section">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop" alt="Modern car wash facility" class="carwash-image">
+        <div class="content-overlay">
+            <h1>Experience the Future of Car Care</h1>
+            <p>Welcome to our state-of-the-art carwash facility where cutting-edge technology meets exceptional service.</p>
+            <p>Our modernized approach combines eco-friendly cleaning solutions with advanced automated systems to deliver a spotless finish every time.</p>
+            <button class="hero-cta" onclick="window.location.href='http://127.0.0.1:8000/washers/auth/'">Book Now</button>
+        </div>
+        <div class="wave-overlay">
+            <svg class="wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".3" class="shape-fill"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".6" class="shape-fill"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" opacity=".8" class="shape-fill"></path>
+            </svg>
+        </div>
+   </div>
+
+        <div class="content-section">
+            <h2 style="text-align:center;">Our Premium Services</h2>
+            <p>Choose from our comprehensive range of professional car care services designed to keep your vehicle looking its absolute best.</p>
+            
+            <div class="services-container">
+                <div class="service-card">
+                    <div class="service-icon">🚗</div>
+                    <h3>Express Wash</h3>
+                    <p>Quick and efficient exterior wash perfect for busy schedules. Includes pre-rinse, soap application, and high-pressure rinse.</p>
+                    <ul class="service-features">
+                        <li>Touchless wash technology</li>
+                        <li>Biodegradable soap</li>
+                        <li>Spot-free rinse</li>
+                        <li>Air dry finish</li>
+                    </ul>
+                    <div class="service-price">Starting at $12</div>
+                </div>
+                
+                <div class="service-card featured">
+                    <div class="service-badge">Most Popular</div>
+                    <div class="service-icon">✨</div>
+                    <h3>Premium Detail</h3>
+                    <p>Complete interior and exterior detailing service that restores your vehicle to showroom condition with professional care.</p>
+                    <ul class="service-features">
+                        <li>Full exterior wash & wax</li>
+                        <li>Interior vacuum & cleaning</li>
+                        <li>Tire shine & wheel cleaning</li>
+                        <li>Dashboard & leather treatment</li>
+                    </ul>
+                    <div class="service-price">Starting at $45</div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🛡️</div>
+                    <h3>Protection Package</h3>
+                    <p>Advanced protection services including ceramic coating and paint protection to keep your car looking new for longer.</p>
+                    <ul class="service-features">
+                        <li>Ceramic coating application</li>
+                        <li>Paint protection film</li>
+                        <li>UV protection treatment</li>
+                        <li>6-month guarantee</li>
+                    </ul>
+                    <div class="service-price">Starting at $89</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

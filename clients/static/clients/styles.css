@@ -1,0 +1,679 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
+}
+
+.hero-section {
+    height: 60vh;
+    width: 100vw;
+    position: relative;
+    overflow: visible;
+    padding-bottom: 80px; /* allow room for the wave so it's not visually clipped on small screens */
+}
+
+.content-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(2, 56, 89, 0.9), rgba(167, 235, 242, 0.8));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    color: white;
+    z-index: 3;
+}
+
+.wave-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 120px; /* visual height of the wave */
+    pointer-events: none; /* avoid intercepting clicks */
+    line-height: 0;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.wave-overlay svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    transform: rotate(180deg);
+}
+
+.wave-overlay .shape-fill {
+    fill: rgba(167, 235, 242, 0.4);
+    mix-blend-mode: overlay;
+}
+
+.content-overlay h1 {
+    font-size: 2.8rem;
+    color: white;
+    margin-bottom: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.content-overlay p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.wave-content-section {
+    position: relative;
+    width: 100vw;
+    background: transparent; /* changed: let body blue show through */
+    min-height: 60vh;
+}
+
+.wave-container {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+    z-index: 1;
+}
+
+.wave-container svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 120px;
+}
+
+.wave-container .shape-fill {
+    fill: #023859;
+}
+
+.carwash-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+.carwash-image:hover {
+    transform: scale(1.05);
+}
+
+.content-section {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 120px 50px 60px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+h1, h2 {
+    font-size: 2.5rem;
+    color: #023859;
+    margin-bottom: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 2.2rem;
+}
+
+p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #555;
+    text-align: justify;
+}
+
+ul {
+    margin: 20px 0;
+    padding-left: 30px;
+}
+
+li {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #555;
+    position: relative;
+}
+
+li::marker {
+    color: #3498db;
+}
+
+/* Services Section */
+.services-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.service-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(2, 56, 89, 0.2);
+    border-color: #023859;
+}
+
+.service-card.featured {
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+    color: white;
+    transform: scale(1.05);
+}
+
+.service-card.featured:hover {
+    transform: scale(1.05) translateY(-10px);
+}
+
+.service-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: #e74c3c;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.service-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 20px;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.service-card h3 {
+    font-size: 1.5rem;
+    color: #023859;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.service-card.featured h3 {
+    color: white;
+}
+
+.service-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.service-card.featured p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.service-features {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.service-features li {
+    padding: 8px 0;
+    position: relative;
+    padding-left: 25px;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.service-card.featured .service-features li {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.service-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #a7ebf2;
+    font-weight: bold;
+}
+
+.service-card.featured .service-features li::before {
+    color: #a7ebf2;
+}
+
+.service-price {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #023859;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(2, 56, 89, 0.1);
+    border-radius: 10px;
+}
+
+.service-card.featured .service-price {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* moved: center align services heading and intro */
+.content-section h2,
+.content-section p {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ensure services grid stays centered */
+.services-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Top navigation */
+.site-nav {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(5, 60, 241, 0.03); /* subtle so hero still shows through on top */
+    backdrop-filter: blur(1px);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+}
+
+.nav-inner {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    gap: 1rem;
+}
+
+.brand {
+    position: absolute;
+    left: 12px;               /* far left padding from the viewport edge */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 45;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* moved: center align services heading and intro */
+.content-section h2,
+.content-section p {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ensure services grid stays centered */
+.services-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Top navigation */
+.site-nav {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+}
+
+.nav-inner {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    gap: 1rem;
+}
+
+.brand {
+    position: absolute;
+    left: 12px;               /* far left padding from the viewport edge */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 45;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.95);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+    background: rgba(255,255,255,0.06);
+    outline: none;
+}
+
+.nav-cta {
+    margin-left: auto;
+    margin-right: 18px;
+    background: #fff;
+    color: #023859;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    order: 2;
+}
+
+.nav-cta:hover {
+    transform: translateY(-1px);
+}
+
+/* responsive: collapse nav links on small screens (simple stack) */
+@media (max-width: 720px) {
+    .nav-inner { padding: 10px 14px; justify-content: flex-end; }
+    .nav-links { display: none; }
+    .nav-cta { margin-right: 10px; padding: 7px 10px; font-size: 0.95rem; }
+}
+
+.wave-overlay .wave {
+    animation: wave-flow 8s ease-in-out infinite;
+}
+
+.wave-container .wave {
+    animation: wave 6s ease-in-out infinite alternate;
+}
+
+@keyframes wave-flow {
+    0%, 100% {
+        transform: rotate(180deg) translateX(0px);
+    }
+    25% {
+        transform: rotate(180deg) translateX(-15px) scaleY(1.1);
+    }
+    50% {
+        transform: rotate(180deg) translateX(-30px) scaleY(0.9);
+    }
+    75% {
+        transform: rotate(180deg) translateX(-15px) scaleY(1.1);
+    }
+}
+
+@keyframes wave {
+    0%, 100% {
+        transform: translateX(0px);
+    }
+    50% {
+        transform: translateX(-25px);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .hero-section {
+        height: 50vh;
+    }
+    
+    .wave-overlay {
+        height: 100px;
+    }
+    
+    .wave-overlay svg {
+        height: 100px;
+    }
+    
+    .wave-container svg {
+        height: 80px;
+    }
+    
+    .wave-content-section {
+        min-height: 50vh;
+    }
+    
+    .content-overlay {
+        width: 60%;
+        padding: 25px;
+    }
+    
+    .content-overlay h1 {
+        font-size: 2.2rem;
+    }
+    
+    .content-overlay p {
+        font-size: 1rem;
+    }
+    
+    .content-section {
+        padding: 80px 25px 40px;
+        margin: 0 20px;
+    }
+    
+    .services-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .service-card.featured {
+        transform: none;
+    }
+    
+    .service-card.featured:hover {
+        transform: translateY(-5px);
+    }
+    
+    h1, h2 {
+        font-size: 2rem;
+    }
+    
+    p, li {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        height: 40vh;
+    }
+    
+    .wave-overlay {
+        height: 80px;
+    }
+    
+    .wave-overlay svg {
+        height: 80px;
+    }
+    
+    .wave-container svg {
+        height: 60px;
+    }
+    
+    .wave-content-section {
+        min-height: 40vh;
+    }
+    
+    .content-overlay {
+        width: 80%;
+        padding: 20px;
+    }
+    
+    .content-overlay h1 {
+        font-size: 1.8rem;
+    }
+    
+    .content-overlay p {
+        font-size: 0.9rem;
+    }
+    
+    .content-section {
+        padding: 60px 15px 30px;
+        margin: 0 10px;
+    }
+    
+    .service-card {
+        padding: 20px;
+    }
+    
+    .service-icon {
+        font-size: 2.5rem;
+    }
+    
+    .service-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    h1, h2 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Added: align wave with the bottom edge of the hero image */
+.hero-section {
+    position: relative;
+    overflow: hidden; /* clip any overflow so wave sits visually at the image edge */
+    padding-bottom: 80px; /* allow room for the wave so it's not visually clipped on small screens */
+}
+
+/* Ensure image fills the hero width and acts as the visual background */
+.hero-section .carwash-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Position the wave overlay to sit flush at the bottom of the hero image */
+.hero-section .wave-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0; /* sit at the image bottom */
+    height: 120px; /* visual height of the wave */
+    pointer-events: none; /* avoid intercepting clicks */
+    line-height: 0;
+}
+
+/* Make the SVG fill the overlay */
+.hero-section .wave-overlay .wave {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Small screens: reduce padding so wave still fits */
+@media (max-width: 520px) {
+    .hero-section { padding-bottom: 60px; }
+    .hero-section .wave-overlay { height: 80px; }
+}
+
+/* Wave: force static solid blue */
+.hero-section .wave,
+.hero-section .wave * {
+    animation: none !important;
+    transition: none !important;
+}
+
+.hero-section .wave .shape-fill,
+.hero-section .wave path {
+    fill: #023859 !important;
+    opacity: 1 !important;
+    vector-effect: non-scaling-stroke;
+    transform: none !important;
+}
+
+/* Invert the hero wave so the crest points upward */
+.hero-section .wave {
+    transform: scaleY(-1) !important;
+    transform-origin: center;
+}
+
+/* If individual paths were neutralized earlier, ensure they inherit the flip */
+.hero-section .wave path {
+    transform: none !important; /* keep paths unrotated individually, the parent flip handles inversion */
+}
+/* He
+ro CTA Button */
+.hero-cta {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    margin-top: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+}
+
+.hero-cta:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}

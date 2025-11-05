@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #023859;
+            --secondary-blue: #a7ebf2;
+            --light-blue: #e8f8fa;
+            --success-green: #28a745;
+            --warning-orange: #ffc107;
+            --danger-red: #dc3545;
+            --info-cyan: #17a2b8;
+            --dark-gray: #2c3e50;
+            --light-gray: #6c757d;
+            --border-radius: 12px;
+            --shadow-light: 0 2px 10px rgba(2, 56, 89, 0.1);
+            --shadow-medium: 0 4px 20px rgba(2, 56, 89, 0.15);
+            --shadow-heavy: 0 8px 30px rgba(2, 56, 89, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%) !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            color: var(--dark-gray) !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .history-container {
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .history-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--shadow-heavy);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(167, 235, 242, 0.3);
+        }
+
+        .history-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(167, 235, 242, 0.3);
+            transition: var(--transition);
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, var(--success-green), #20c997) !important;
+        }
+
+        .bg-warning {
+            background: linear-gradient(135deg, var(--warning-orange), #ffeb3b) !important;
+            color: #856404 !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(135deg, var(--info-cyan), #20c997) !important;
+        }
+
+        .bg-secondary {
+            background: linear-gradient(135deg, var(--light-gray), #95a5a6) !important;
+        }
+
+        .bg-danger {
+            background: linear-gradient(135deg, var(--danger-red), #e74c3c) !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-light:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(167, 235, 242, 0.3);
+            transition: var(--transition);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .text-primary {
+            color: var(--primary-blue) !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <div class="container">
+            <div class="history-card fade-in">
+                <div class="history-header p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-2">
+                                <i class="fas fa-history me-2"></i>Order History
+                            </h2>
+                            <p class="mb-0 opacity-75">View all your car wash orders</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'clients:dashboard' %}" class="btn btn-outline-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <a href="{% url 'clients:book_wash' %}" class="btn btn-light">
+                                <i class="fas fa-plus me-2"></i>Book New Wash
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if orders %}
+                        {% for order in orders %}
+                        <div class="order-card slide-up">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <div class="text-center">
+                                        <i class="fas fa-car fa-2x text-primary mb-2"></i>
+                                        <h6 class="mb-0 fw-bold">Order #{{ order.order_id }}</h6>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1 text-dark">{{ order.vehicle }}</h6>
+                                    <p class="mb-1 text-muted">{{ order.get_wash_type_display }}</p>
+                                    <small class="text-muted">{{ order.created_at|date:"M d, Y \a\t H:i" }}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'in_progress' %}warning{% elif order.status == 'assigned' %}info{% elif order.status == 'pending' %}secondary{% else %}danger{% endif %} status-badge">
+                                        {% if order.status == 'completed' %}
+                                            <i class="fas fa-check me-1"></i>
+                                        {% elif order.status == 'in_progress' %}
+                                            <i class="fas fa-play me-1"></i>
+                                        {% elif order.status == 'assigned' %}
+                                            <i class="fas fa-user-check me-1"></i>
+                                        {% elif order.status == 'pending' %}
+                                            <i class="fas fa-clock me-1"></i>
+                                        {% else %}
+                                            <i class="fas fa-times me-1"></i>
+                                        {% endif %}
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="col-md-2">
+                                    <h5 class="mb-0 text-success fw-bold">${{ order.price }}</h5>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'clients:track_order' order.order_id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-search-location me-1"></i>Track
+                                        </a>
+                                        {% if order.status == 'completed' %}
+                                            <button class="btn btn-sm btn-outline-success" disabled>
+                                                <i class="fas fa-check me-1"></i>Done
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if order.notes %}
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sticky-note me-1"></i><strong>Notes:</strong> {{ order.notes }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if order.washer %}
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i><strong>Washer:</strong> {{ order.washer.full_name }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <!-- Summary Stats -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="summary-card text-center">
+                                    <div class="mb-2">
+                                        <i class="fas fa-shopping-cart fa-2x text-primary"></i>
+                                    </div>
+                                    <h4 class="text-primary fw-bold">{{ total_orders }}</h4>
+                                    <p class="mb-0 text-muted">Total Orders</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="summary-card text-center">
+                                    <div class="mb-2">
+                                        <i class="fas fa-dollar-sign fa-2x text-success"></i>
+                                    </div>
+                                    <h4 class="text-success fw-bold">${{ total_spent }}</h4>
+                                    <p class="mb-0 text-muted">Total Spent</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="summary-card text-center">
+                                    <div class="mb-2">
+                                        <i class="fas fa-check-circle fa-2x text-info"></i>
+                                    </div>
+                                    <h4 class="text-info fw-bold">{{ completed_orders }}</h4>
+                                    <p class="mb-0 text-muted">Completed</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-inbox fa-5x text-primary opacity-50"></i>
+                            </div>
+                            <h4 class="text-dark mb-3">No Orders Yet</h4>
+                            <p class="text-muted mb-4">You haven't placed any car wash orders yet.</p>
+                            <a href="{% url 'clients:book_wash' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Book Your First Wash
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

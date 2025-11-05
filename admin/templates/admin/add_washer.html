@@ -1,0 +1,443 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<style>
+/* Add Washer Form Styling */
+.add-washer-container {
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.add-washer-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 0 15px 50px rgba(2, 56, 89, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.add-washer-header {
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.add-washer-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+.add-washer-header .header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.add-washer-header .header-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.add-washer-header h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.add-washer-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.form-container {
+    padding: 40px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #023859;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid rgba(2, 56, 89, 0.15);
+    border-radius: 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: #023859;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #a7ebf2;
+    box-shadow: 0 0 0 0.3rem rgba(167, 235, 242, 0.25);
+    transform: translateY(-2px);
+    background: white;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 20px;
+    background: rgba(2, 56, 89, 0.05);
+    border-radius: 15px;
+    border: 2px solid rgba(2, 56, 89, 0.1);
+    transition: all 0.3s ease;
+}
+
+.form-check:hover {
+    background: rgba(2, 56, 89, 0.08);
+    border-color: rgba(2, 56, 89, 0.2);
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+}
+
+.form-check-label {
+    font-weight: 600;
+    color: #023859;
+    margin: 0;
+    cursor: pointer;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(2, 56, 89, 0.1);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-submit:hover::before {
+    left: 100%;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.6);
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #5a6268, #6c757d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.error-message {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.success-message {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+@media (max-width: 768px) {
+    .add-washer-container {
+        padding: 10px;
+    }
+    
+    .form-container {
+        padding: 25px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-submit, .btn-cancel {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+
+<div class="add-washer-container">
+    <div class="add-washer-card">
+        <!-- Header Section -->
+        <div class="add-washer-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-user-plus fa-2x"></i>
+                </div>
+                <h2>{{ title }}</h2>
+                <p>Add a new staff member to your car wash team</p>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <!-- Debug: CSRF token value -->
+                <!-- {{ csrf_token }} -->
+                
+                <!-- Personal Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}">
+                            <i class="fas fa-user me-2"></i>First Name *
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.help_text %}
+                            <div class="help-text">{{ form.first_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}">
+                            <i class="fas fa-user me-2"></i>Last Name *
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.help_text %}
+                            <div class="help-text">{{ form.last_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">
+                            <i class="fas fa-envelope me-2"></i>Email Address *
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.help_text %}
+                            <div class="help-text">{{ form.email.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">
+                            <i class="fas fa-phone me-2"></i>Phone Number *
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.help_text %}
+                            <div class="help-text">{{ form.phone.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Password Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.password.id_for_label }}">
+                            <i class="fas fa-lock me-2"></i>Password *
+                        </label>
+                        {{ form.password }}
+                        {% if form.password.help_text %}
+                            <div class="help-text">{{ form.password.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.confirm_password.id_for_label }}">
+                            <i class="fas fa-lock me-2"></i>Confirm Password *
+                        </label>
+                        {{ form.confirm_password }}
+                        {% if form.confirm_password.help_text %}
+                            <div class="help-text">{{ form.confirm_password.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Work Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.hourly_rate.id_for_label }}">
+                            <i class="fas fa-dollar-sign me-2"></i>Hourly Rate
+                        </label>
+                        {{ form.hourly_rate }}
+                        {% if form.hourly_rate.help_text %}
+                            <div class="help-text">{{ form.hourly_rate.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.status.id_for_label }}">
+                            <i class="fas fa-info-circle me-2"></i>Status
+                        </label>
+                        {{ form.status }}
+                        {% if form.status.help_text %}
+                            <div class="help-text">{{ form.status.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="form-group">
+                    <div class="form-check">
+                        {{ form.is_available }}
+                        <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                            <i class="fas fa-check-circle me-2"></i>Available for Work
+                        </label>
+                    </div>
+                    {% if form.is_available.help_text %}
+                        <div class="help-text">{{ form.is_available.help_text }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-plus me-2"></i>Add Staff Member
+                    </button>
+                    <a href="{% url 'carwash_admin:manage_washers' %}" class="btn-cancel">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Debug CSRF token
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found in form!');
+    } else {
+        console.log('CSRF token found:', csrfToken.value.substring(0, 10) + '...');
+    }
+    
+    form.addEventListener('submit', function(e) {
+        if (!csrfToken || !csrfToken.value) {
+            console.error('CSRF token is missing or empty!');
+            alert('Security token is missing. Please refresh the page and try again.');
+            e.preventDefault();
+            return false;
+        }
+        console.log('Form submitted with CSRF token');
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ washer_name }} - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* Enhanced Dashboard Styling */
+        :root {
+            --primary-blue: #023859;
+            --secondary-blue: #a7ebf2;
+            --light-blue: #e8f8fa;
+            --success-green: #28a745;
+            --warning-orange: #ffc107;
+            --danger-red: #dc3545;
+            --info-cyan: #17a2b8;
+            --dark-gray: #2c3e50;
+            --light-gray: #6c757d;
+            --border-radius: 15px;
+            --shadow-light: 0 4px 15px rgba(2, 56, 89, 0.1);
+            --shadow-medium: 0 8px 25px rgba(2, 56, 89, 0.15);
+            --shadow-heavy: 0 15px 40px rgba(2, 56, 89, 0.2);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--primary-blue) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: var(--shadow-heavy);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue), var(--success-green));
+        }
+
+        .header-content {
+            padding: 30px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(2, 56, 89, 0.4);
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-avatar:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(2, 56, 89, 0.6);
+        }
+
+        .user-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+            border-radius: 50%;
+        }
+
+        .welcome-text h2 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            color: var(--light-gray);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Status and Action Buttons */
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 2px solid transparent;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, var(--success-green), #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, var(--danger-red), #fd7e14);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-toggle {
+            background: linear-gradient(135deg, var(--warning-orange), #fd7e14);
+            color: #212529;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, var(--light-gray), #adb5bd);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-profile {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            box-shadow: 0 4px 15px rgba(2, 56, 89, 0.3);
+        }
+
+        .btn-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(2, 56, 89, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .stat-card.assigned::before {
+            background: linear-gradient(90deg, var(--warning-orange), #fd7e14);
+        }
+
+        .stat-card.in-progress::before {
+            background: linear-gradient(90deg, var(--info-cyan), #0dcaf0);
+        }
+
+        .stat-card.completed::before {
+            background: linear-gradient(90deg, var(--success-green), #20c997);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card.assigned .stat-icon {
+            background: linear-gradient(135deg, var(--warning-orange), #fd7e14);
+        }
+
+        .stat-card.in-progress .stat-icon {
+            background: linear-gradient(135deg, var(--info-cyan), #0dcaf0);
+        }
+
+        .stat-card.completed .stat-icon {
+            background: linear-gradient(135deg, var(--success-green), #20c997);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--light-gray);
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Orders Section */
+        .orders-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: var(--shadow-heavy);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .orders-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue));
+        }
+
+        .orders-header {
+            padding: 30px;
+            border-bottom: 1px solid rgba(2, 56, 89, 0.1);
+        }
+
+        .orders-header h4 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .orders-content {
+            padding: 30px;
+        }
+
+        /* Enhanced Table */
+        .table-container {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .table {
+            margin: 0;
+            background: white;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 15px;
+        }
+
+        .table tbody tr {
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(2, 56, 89, 0.05);
+            transform: scale(1.01);
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-color: rgba(2, 56, 89, 0.1);
+        }
+
+        /* Order Action Buttons */
+        .order-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .order-btn.start {
+            background: linear-gradient(135deg, var(--info-cyan), #0dcaf0);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+
+        .order-btn.start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .order-btn.complete {
+            background: linear-gradient(135deg, var(--success-green), #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .order-btn.complete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--light-gray);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--secondary-blue);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .empty-state h5 {
+            color: var(--dark-gray);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .header-content {
+                padding: 20px;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .stat-card {
+                padding: 20px;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .orders-header, .orders-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered Animation Delays */
+        .fade-in:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Header Section -->
+            <div class="dashboard-header fade-in" data-aos="fade-down">
+                <div class="header-content">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center header-info">
+                            <div class="user-avatar me-4">
+                                {{ washer_initials|default:washer_name|slice:":2"|upper }}
+                            </div>
+                            <div class="welcome-text">
+                                <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+                                <p>Welcome back, {{ washer_name }}!</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 header-actions">
+                            <span class="status-badge status-{% if washer_status == 'active' %}active{% else %}inactive{% endif %}">
+                                <i class="fas fa-circle me-2"></i>{{ washer_status|title }}
+                            </span>
+                            <a href="{% url 'washers:profile' %}" class="action-btn btn-profile">
+                                <i class="fas fa-user-cog me-2"></i>Profile
+                            </a>
+                            <a href="{% url 'washers:toggle_availability' %}" class="action-btn btn-toggle">
+                                <i class="fas fa-toggle-{% if washer.is_available %}on{% else %}off{% endif %} me-2"></i>
+                                {% if washer.is_available %}Go Unavailable{% else %}Go Available{% endif %}
+                            </a>
+                            <a href="{% url 'washers:logout' %}" class="action-btn btn-logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" data-aos="fade-in">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card assigned fade-in" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-number">{{ assigned_orders }}</div>
+                    <div class="stat-label">Assigned Orders</div>
+                </div>
+                <div class="stat-card in-progress fade-in" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">{{ in_progress_orders }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card completed fade-in" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number">{{ completed_today }}</div>
+                    <div class="stat-label">Completed Today</div>
+                </div>
+            </div>
+
+            <!-- Current Orders Section -->
+            <div class="orders-section fade-in" data-aos="fade-up" data-aos-delay="400">
+                <div class="orders-header">
+                    <h4><i class="fas fa-list-alt me-2"></i>Current Orders</h4>
+                </div>
+                <div class="orders-content">
+                    {% if current_orders %}
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-hashtag me-2"></i>Order #</th>
+                                        <th><i class="fas fa-car me-2"></i>Vehicle</th>
+                                        <th><i class="fas fa-spray-can me-2"></i>Wash Type</th>
+                                        <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                                        <th><i class="fas fa-clock me-2"></i>Assigned</th>
+                                        <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in current_orders %}
+                                    <tr>
+                                        <td><strong>#{{ order.order_id }}</strong></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-car me-2 text-primary"></i>
+                                                {{ order.vehicle }}
+                                            </div>
+                                        </td>
+                                        <td>{{ order.get_wash_type_display }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if order.status == 'assigned' %}warning{% elif order.status == 'in_progress' %}info{% else %}success{% endif %} px-3 py-2">
+                                                <i class="fas fa-{% if order.status == 'assigned' %}clipboard-list{% elif order.status == 'in_progress' %}clock{% else %}check{% endif %} me-1"></i>
+                                                {{ order.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {{ order.assigned_at|date:"M d, H:i" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if order.status == 'assigned' %}
+                                                <a href="{% url 'washers:start_wash' order.order_id %}" class="order-btn start">
+                                                    <i class="fas fa-play me-1"></i>Start Wash
+                                                </a>
+                                            {% elif order.status == 'in_progress' %}
+                                                <a href="{% url 'washers:complete_wash' order.order_id %}" class="order-btn complete">
+                                                    <i class="fas fa-check me-1"></i>Complete
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h5>No Current Orders</h5>
+                            <p>You don't have any orders assigned at the moment. New orders will appear here when assigned by the admin.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
+        });
+
+        // Auto-refresh functionality with visual indicator
+        let refreshInterval;
+        let refreshCountdown = 60; // 60 seconds
+        
+        function startRefreshCountdown() {
+            const refreshIndicator = document.createElement('div');
+            refreshIndicator.id = 'refresh-indicator';
+            refreshIndicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+                color: white;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                z-index: 1000;
+                box-shadow: 0 4px 15px rgba(2, 56, 89, 0.3);
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: all 0.3s ease;
+            `;
+            document.body.appendChild(refreshIndicator);
+            
+            refreshInterval = setInterval(() => {
+                refreshCountdown--;
+                refreshIndicator.innerHTML = `
+                    <i class="fas fa-sync-alt me-2"></i>
+                    Auto-refresh in ${refreshCountdown}s
+                `;
+                
+                if (refreshCountdown <= 10) {
+                    refreshIndicator.style.opacity = '1';
+                    refreshIndicator.style.transform = 'translateY(0)';
+                }
+                
+                if (refreshCountdown <= 0) {
+                    refreshIndicator.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+        
+        // Start countdown after page load
+        setTimeout(startRefreshCountdown, 5000);
+        
+        // Add click handlers for order actions
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderButtons = document.querySelectorAll('.order-btn');
+            
+            orderButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Add loading state
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+                    this.style.pointerEvents = 'none';
+                    
+                    // If for some reason the request fails, restore button after 5 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.pointerEvents = 'auto';
+                    }, 5000);
+                });
+            });
+            
+            // Add hover effects to stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+        
+        // Add real-time clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const dateString = now.toLocaleDateString();
+            
+            // Create or update clock element
+            let clockElement = document.getElementById('live-clock');
+            if (!clockElement) {
+                clockElement = document.createElement('div');
+                clockElement.id = 'live-clock';
+                clockElement.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: rgba(255, 255, 255, 0.9);
+                    color: var(--primary-blue);
+                    padding: 10px 15px;
+                    border-radius: 15px;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    box-shadow: 0 4px 15px rgba(2, 56, 89, 0.1);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(2, 56, 89, 0.1);
+                `;
+                document.body.appendChild(clockElement);
+            }
+            
+            clockElement.innerHTML = `
+                <i class="fas fa-clock me-2"></i>
+                ${timeString}
+            `;
+        }
+        
+        // Update clock every second
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>

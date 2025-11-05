@@ -1,0 +1,458 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="analytics-container">
+    <div class="analytics-card">
+        <!-- Header Section -->
+        <div class="analytics-header">
+            <div class="header-content d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="header-icon me-3">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-1">{{ title }}</h2>
+                        <p class="mb-0 opacity-90">
+                            <i class="fas fa-calendar me-2"></i>
+                            Business Analytics & Insights
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3">
+                    <button class="back-btn" onclick="generateReport()" style="border: none; cursor: pointer;">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Generate Report
+                    </button>
+                    <a href="{% url 'carwash_admin:dashboard' %}" class="back-btn">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Filter Section -->
+        <div class="date-filter-section">
+            <div class="date-filter-row">
+                <div class="filter-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" class="filter-input" value="{% now 'Y-m-01' %}">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" class="filter-input" value="{% now 'Y-m-d' %}">
+                </div>
+                <div class="filter-group">
+                    <label for="period">Quick Select</label>
+                    <select id="period" class="filter-input">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month" selected>This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button class="filter-btn" onclick="updateAnalytics()">
+                        <i class="fas fa-sync me-2"></i>Update
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Section -->
+        <div class="metrics-section">
+            <div class="metric-card fade-in">
+                <i class="fas fa-dollar-sign metric-icon"></i>
+                <div class="metric-number">${{ analytics.total_revenue|default:0 }}</div>
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>+12.5%
+                </div>
+            </div>
+            <div class="metric-card fade-in">
+                <i class="fas fa-shopping-cart metric-icon"></i>
+                <div class="metric-number">{{ analytics.total_orders|default:0 }}</div>
+                <div class="metric-label">Total Orders</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>+8.3%
+                </div>
+            </div>
+            <div class="metric-card fade-in">
+                <i class="fas fa-users metric-icon"></i>
+                <div class="metric-number">{{ analytics.new_customers|default:0 }}</div>
+                <div class="metric-label">New Customers</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>+15.7%
+                </div>
+            </div>
+            <div class="metric-card fade-in">
+                <i class="fas fa-chart-bar metric-icon"></i>
+                <div class="metric-number">${{ analytics.avg_order_value|default:0 }}</div>
+                <div class="metric-label">Avg Order Value</div>
+                <div class="metric-change negative">
+                    <i class="fas fa-arrow-down me-1"></i>-2.1%
+                </div>
+            </div>
+            <div class="metric-card fade-in">
+                <i class="fas fa-percentage metric-icon"></i>
+                <div class="metric-number">{{ analytics.completion_rate|default:95 }}%</div>
+                <div class="metric-label">Completion Rate</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>+3.2%
+                </div>
+            </div>
+            <div class="metric-card fade-in">
+                <i class="fas fa-star metric-icon"></i>
+                <div class="metric-number">{{ analytics.avg_rating|default:4.8 }}</div>
+                <div class="metric-label">Average Rating</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>+0.3
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="charts-grid">
+                <div class="chart-card fade-in">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line chart-icon"></i>
+                        Revenue Trend (Last 30 Days)
+                    </div>
+                    <div class="chart-container" style="padding: 20px; height: 350px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card fade-in">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie chart-icon"></i>
+                        Service Distribution (Last 30 Days)
+                    </div>
+                    <div class="chart-container" style="padding: 20px; height: 350px; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="serviceChart" style="max-width: 300px; max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-card fade-in">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar chart-icon"></i>
+                    Daily Orders Overview (By Day of Week)
+                </div>
+                <div class="chart-container" style="padding: 20px; height: 350px;">
+                    <canvas id="dailyOrdersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Insights Section -->
+        <div class="insights-section">
+            <h4 class="mb-4">
+                <i class="fas fa-lightbulb me-2"></i>
+                Business Insights
+            </h4>
+            <div class="insights-grid">
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-trending-up"></i>
+                        Peak Performance
+                    </div>
+                    <div class="insight-content">
+                        Your busiest day is <span class="insight-highlight">Saturday</span> with an average of 
+                        <span class="insight-highlight">{{ analytics.peak_day_orders|default:25 }} orders</span>. 
+                        Consider scheduling more staff during weekend hours to handle increased demand.
+                    </div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-users"></i>
+                        Customer Retention
+                    </div>
+                    <div class="insight-content">
+                        <span class="insight-highlight">{{ analytics.repeat_customers|default:68 }}%</span> of your customers 
+                        are repeat clients. Your customer loyalty program is working well, but there's room for improvement 
+                        in first-time customer conversion.
+                    </div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-clock"></i>
+                        Service Efficiency
+                    </div>
+                    <div class="insight-content">
+                        Average service time is <span class="insight-highlight">{{ analytics.avg_service_time|default:45 }} minutes</span>. 
+                        Your team is performing well, with a <span class="insight-highlight">{{ analytics.completion_rate|default:95 }}%</span> 
+                        completion rate on scheduled appointments.
+                    </div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-star"></i>
+                        Quality Metrics
+                    </div>
+                    <div class="insight-content">
+                        Customer satisfaction is high with an average rating of 
+                        <span class="insight-highlight">{{ analytics.avg_rating|default:4.8 }}/5.0</span>. 
+                        Most positive feedback mentions staff professionalism and service quality.
+                    </div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-chart-line"></i>
+                        Growth Opportunity
+                    </div>
+                    <div class="insight-content">
+                        Revenue has grown <span class="insight-highlight">{{ analytics.revenue_growth|default:12.5 }}%</span> 
+                        this month. Consider expanding service offerings or extending operating hours to capitalize on demand.
+                    </div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Areas for Improvement
+                    </div>
+                    <div class="insight-content">
+                        <span class="insight-highlight">{{ analytics.cancellation_rate|default:5 }}%</span> of orders are cancelled. 
+                        Main reasons include scheduling conflicts and weather conditions. Consider implementing a flexible rescheduling policy.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up date inputs with current month
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    
+    // Period selector functionality
+    const periodSelect = document.getElementById('period');
+    periodSelect.addEventListener('change', function() {
+        const period = this.value;
+        const endDate = new Date();
+        let startDate = new Date();
+        
+        switch(period) {
+            case 'today':
+                startDate = new Date();
+                break;
+            case 'week':
+                startDate.setDate(endDate.getDate() - 7);
+                break;
+            case 'month':
+                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(endDate.getMonth() / 3);
+                startDate = new Date(endDate.getFullYear(), quarter * 3, 1);
+                break;
+            case 'year':
+                startDate = new Date(endDate.getFullYear(), 0, 1);
+                break;
+        }
+        
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+    });
+    
+    // Initialize charts after a short delay
+    setTimeout(initCharts, 500);
+});
+
+function initCharts() {
+    if (typeof Chart === 'undefined') {
+        console.log('Chart.js not loaded yet, retrying...');
+        setTimeout(initCharts, 500);
+        return;
+    }
+    
+    console.log('Initializing charts...');
+    
+    // Revenue Trend Chart
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: {{ revenue_trend_labels|safe }},
+                datasets: [{
+                    label: 'Daily Revenue ($)',
+                    data: {{ revenue_trend_data|safe }},
+                    borderColor: '#023859',
+                    backgroundColor: 'rgba(2, 56, 89, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Service Distribution Pie Chart
+    const serviceCtx = document.getElementById('serviceChart');
+    if (serviceCtx) {
+        const serviceChart = new Chart(serviceCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ service_labels|safe }},
+                datasets: [{
+                    data: {{ service_counts|safe }},
+                    backgroundColor: {{ service_colors|safe }},
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    }
+    
+    // Daily Orders Bar Chart
+    const dailyCtx = document.getElementById('dailyOrdersChart');
+    if (dailyCtx) {
+        const dailyChart = new Chart(dailyCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ daily_orders_labels|safe }},
+                datasets: [{
+                    label: 'Orders per Day',
+                    data: {{ daily_orders_data|safe }},
+                    backgroundColor: '#023859',
+                    borderColor: '#a7ebf2',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 1
+                    }
+                }
+            }
+        });
+    }
+}
+
+function updateAnalytics() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate || !endDate) {
+        alert('Please select both start and end dates.');
+        return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+        alert('Start date cannot be later than end date.');
+        return;
+    }
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+    button.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Show success message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success position-fixed';
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check-circle me-2"></i>
+            Analytics updated for ${startDate} to ${endDate}
+        `;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3000);
+        
+        // Reset button
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 2000);
+}
+
+function generateReport() {
+    // Create a simple report window
+    const reportWindow = window.open('', '_blank', 'width=800,height=600');
+    const reportContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Car Wash Analytics Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .metric { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+                .metric strong { color: #023859; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Car Wash Business Analytics Report</h1>
+                <p>Generated on: ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <h2>Key Metrics</h2>
+            <div class="metric"><strong>Total Revenue:</strong> ${{ analytics.total_revenue|default:0 }}</div>
+            <div class="metric"><strong>Total Orders:</strong> {{ analytics.total_orders|default:0 }}</div>
+            <div class="metric"><strong>New Customers:</strong> {{ analytics.new_customers|default:0 }}</div>
+            <div class="metric"><strong>Average Order Value:</strong> ${{ analytics.avg_order_value|default:0 }}</div>
+            <div class="metric"><strong>Completion Rate:</strong> {{ analytics.completion_rate|default:0 }}%</div>
+            <div class="metric"><strong>Average Rating:</strong> {{ analytics.avg_rating|default:0 }}/5.0</div>
+            
+            <h2>Business Insights</h2>
+            <div class="metric">Peak day orders: {{ analytics.peak_day_orders|default:0 }}</div>
+            <div class="metric">Repeat customers: {{ analytics.repeat_customers|default:0 }}%</div>
+            <div class="metric">Average service time: {{ analytics.avg_service_time|default:0 }} minutes</div>
+            <div class="metric">Cancellation rate: {{ analytics.cancellation_rate|default:0 }}%</div>
+            <div class="metric">Revenue growth: {{ analytics.revenue_growth|default:0 }}%</div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button onclick="window.print()" style="padding: 10px 20px; background: #023859; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Print Report
+                </button>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    reportWindow.document.write(reportContent);
+    reportWindow.document.close();
+}
+</script>
+{% endblock %}

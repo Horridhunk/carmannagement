@@ -1,0 +1,419 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="admin-container">
+    <div class="admin-card fade-in">
+        <div class="admin-header p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-2">
+                        <i class="fas fa-shopping-cart me-2"></i>{{ title }}
+                    </h2>
+                    <p class="mb-0 text-white opacity-75">{{ orders|length }} Orders • ${{ total_revenue|default:0 }} Revenue</p>
+                </div>
+                <div>
+                    <a href="{% url 'carwash_admin:dashboard' %}" class="btn btn-outline-light hover-lift">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+                
+        <div class="p-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show slide-up" role="alert">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Filter Section -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control border-0 shadow-sm" id="orderSearch" 
+                               placeholder="Search by order ID, client name...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select border-0 shadow-sm" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select border-0 shadow-sm" id="dateFilter">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100 hover-lift" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="metric-card text-center hover-lift">
+                        <div class="metric-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-value">{{ orders|length }}</div>
+                        <div class="metric-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="metric-card text-center hover-lift">
+                        <div class="metric-icon text-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-value text-warning">{{ pending_orders|default:0 }}</div>
+                        <div class="metric-label">Pending</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="metric-card text-center hover-lift">
+                        <div class="metric-icon text-info">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="metric-value text-info">{{ in_progress_orders|default:0 }}</div>
+                        <div class="metric-label">In Progress</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="metric-card text-center hover-lift">
+                        <div class="metric-icon text-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="metric-value text-success">{{ completed_today|default:0 }}</div>
+                        <div class="metric-label">Completed Today</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card text-center hover-lift">
+                        <div class="metric-icon text-success">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-value text-success">${{ total_revenue|default:0 }}</div>
+                        <div class="metric-label">Total Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            {% if orders %}
+                <div id="ordersGrid">
+                    {% for order in orders %}
+                    <div class="order-card mb-3 slide-up">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <h6 class="mb-1 fw-bold">Order #{{ order.order_id }}</h6>
+                                <small class="text-muted">{{ order.order_date|date:"M d, Y g:i A" }}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong class="text-dark">{{ order.client.first_name }} {{ order.client.last_name }}</strong>
+                                <br><small class="text-muted">{{ order.service_type|default:"Standard Wash" }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <strong class="text-success">${{ order.total_amount|default:0 }}</strong>
+                            </div>
+                            <div class="col-md-2">
+                                {% if order.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                {% elif order.status == 'in-progress' %}
+                                    <span class="status-badge status-progress">
+                                        <i class="fas fa-play me-1"></i>In Progress
+                                    </span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="status-badge status-completed">
+                                        <i class="fas fa-check me-1"></i>Completed
+                                    </span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="status-badge status-cancelled">
+                                        <i class="fas fa-times me-1"></i>Cancelled
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-primary btn-sm hover-lift" data-bs-toggle="modal" data-bs-target="#orderModal{{ order.order_id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if order.status == 'pending' %}
+                                    <button class="btn btn-success btn-sm hover-lift" onclick="updateOrderStatus({{ order.order_id }}, 'in-progress')">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    {% elif order.status == 'in-progress' %}
+                                    <button class="btn btn-warning btn-sm hover-lift" onclick="updateOrderStatus({{ order.order_id }}, 'completed')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn btn-danger btn-sm hover-lift" data-bs-toggle="modal" data-bs-target="#cancelModal{{ order.order_id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% if order.assigned_washer %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                    Assigned to: <strong>{{ order.assigned_washer.first_name }} {{ order.assigned_washer.last_name }}</strong>
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-cart fa-5x mb-3"></i>
+                        <h4>No Orders Found</h4>
+                        <p class="text-muted">No orders have been placed yet. Orders will appear here once clients start booking services.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modals -->
+{% for order in orders %}
+<div class="modal fade" id="orderModal{{ order.order_id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white;">
+                <div>
+                    <h5 class="modal-title mb-0">Order #{{ order.order_id }}</h5>
+                    <small>{{ order.order_date|date:"F d, Y g:i A" }}</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user me-2 text-primary"></i>Client Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Name:</strong></td><td>{{ order.client.first_name }} {{ order.client.last_name }}</td></tr>
+                            <tr><td><strong>Email:</strong></td><td>{{ order.client.email }}</td></tr>
+                            <tr><td><strong>Phone:</strong></td><td>{{ order.client.phone|default:"Not provided" }}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-car me-2 text-primary"></i>Vehicle Information</h6>
+                        {% if order.vehicle %}
+                        <table class="table table-sm">
+                            <tr><td><strong>Vehicle:</strong></td><td>{{ order.vehicle.make }} {{ order.vehicle.model }}</td></tr>
+                            <tr><td><strong>Year:</strong></td><td>{{ order.vehicle.year }}</td></tr>
+                            <tr><td><strong>License:</strong></td><td>{{ order.vehicle.license_plate }}</td></tr>
+                        </table>
+                        {% else %}
+                        <p class="text-muted">No vehicle information available</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cogs me-2 text-primary"></i>Service Details</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Service Type:</strong></td><td>{{ order.service_type|default:"Standard Wash" }}</td></tr>
+                            <tr><td><strong>Amount:</strong></td><td>${{ order.total_amount|default:0 }}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td>
+                                {% if order.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif order.status == 'in-progress' %}
+                                    <span class="badge bg-info">In Progress</span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user-tie me-2 text-primary"></i>Assignment</h6>
+                        {% if order.assigned_washer %}
+                        <table class="table table-sm">
+                            <tr><td><strong>Assigned to:</strong></td><td>{{ order.assigned_washer.first_name }} {{ order.assigned_washer.last_name }}</td></tr>
+                            <tr><td><strong>Phone:</strong></td><td>{{ order.assigned_washer.phone|default:"Not provided" }}</td></tr>
+                        </table>
+                        {% else %}
+                        <p class="text-muted">No washer assigned yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if order.notes %}
+                <div class="mt-4">
+                    <h6><i class="fas fa-sticky-note me-2 text-primary"></i>Notes</h6>
+                    <p>{{ order.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if order.status == 'pending' %}
+                <button type="button" class="btn btn-success" onclick="updateOrderStatus({{ order.order_id }}, 'in-progress')">Start Order</button>
+                {% elif order.status == 'in-progress' %}
+                <button type="button" class="btn btn-warning" onclick="updateOrderStatus({{ order.order_id }}, 'completed')">Complete Order</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelModal{{ order.order_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Cancel Order</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h5>Order #{{ order.order_id }}</h5>
+                    <p class="text-muted">{{ order.client.first_name }} {{ order.client.last_name }}</p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action will cancel the order. The client will be notified.
+                </div>
+                
+                <div class="mb-3">
+                    <label for="cancelReason{{ order.order_id }}" class="form-label">Cancellation Reason</label>
+                    <textarea class="form-control" id="cancelReason{{ order.order_id }}" rows="3" placeholder="Enter reason for cancellation..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                <button type="button" class="btn btn-danger" onclick="cancelOrder({{ order.order_id }})">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('orderSearch');
+    const orderCards = document.querySelectorAll('#ordersGrid .card');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        orderCards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            
+            if (text.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        
+        orderCards.forEach(card => {
+            if (!selectedStatus) {
+                card.style.display = 'block';
+            } else {
+                const badge = card.querySelector('.badge');
+                if (badge && badge.textContent.toLowerCase().includes(selectedStatus.replace('-', ' '))) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        });
+    });
+});
+
+function applyFilters() {
+    document.getElementById('orderSearch').dispatchEvent(new Event('input'));
+    document.getElementById('statusFilter').dispatchEvent(new Event('change'));
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    console.log(`Updating order ${orderId} to status: ${newStatus}`);
+    alert(`Order #${orderId} status updated to ${newStatus.replace('-', ' ')}!`);
+    setTimeout(() => location.reload(), 1500);
+}
+
+function cancelOrder(orderId) {
+    const reason = document.getElementById(`cancelReason${orderId}`).value;
+    
+    if (!reason.trim()) {
+        alert('Please provide a reason for cancellation.');
+        return;
+    }
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cancelling...';
+    button.disabled = true;
+    
+    // Create a form and submit it to handle CSRF properly
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/carwash-admin/orders/cancel/${orderId}/`;
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+        
+        // Add cancellation reason
+        const reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'cancellation_reason';
+        reasonInput.value = reason;
+        form.appendChild(reasonInput);
+    } else {
+        console.error('CSRF token not found');
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('Security token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

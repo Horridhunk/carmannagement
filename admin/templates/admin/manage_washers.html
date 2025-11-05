@@ -1,0 +1,1038 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<style>
+/* Force center alignment for washers header */
+.washers-header {
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%) !important;
+    color: white !important;
+    padding: 50px 35px !important;
+    position: relative;
+    overflow: hidden;
+    text-align: center !important;
+}
+
+.washers-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+.washers-header .header-content {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    text-align: center !important;
+}
+
+.washers-header .header-back-btn {
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
+    z-index: 10 !important;
+}
+
+.washers-header .header-main-content {
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.washers-header .header-icon {
+    width: 120px !important;
+    height: 120px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    margin: 0 auto 25px auto !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.washers-header .header-text {
+    text-align: center !important;
+}
+
+.washers-header .header-text h2 {
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+    text-align: center !important;
+    color: white !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.washers-header .header-text p {
+    font-size: 1.3rem !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+}
+
+/* Enhanced Button Styling */
+.back-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)) !important;
+    color: white !important;
+    padding: 14px 28px !important;
+    border-radius: 30px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.back-btn:hover::before {
+    left: 100%;
+}
+
+.back-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2)) !important;
+    color: white !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    text-decoration: none !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    padding: 16px 32px !important;
+    border-radius: 30px !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4) !important;
+    border: none !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.add-btn:hover::before {
+    left: 100%;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+    color: white !important;
+    transform: translateY(-4px) scale(1.08) !important;
+    box-shadow: 0 15px 40px rgba(40, 167, 69, 0.6) !important;
+    text-decoration: none !important;
+}
+
+.add-btn:active {
+    transform: translateY(-2px) scale(1.05) !important;
+}
+
+/* Enhanced Action Buttons in Cards */
+.action-btn {
+    flex: 1 !important;
+    padding: 12px 20px !important;
+    border-radius: 25px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    min-width: 120px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.action-btn:hover::before {
+    left: 100%;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #023859, #a7ebf2) !important;
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(2, 56, 89, 0.4) !important;
+}
+
+.action-btn.primary:hover {
+    background: linear-gradient(135deg, #a7ebf2, #023859) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 10px 30px rgba(2, 56, 89, 0.6) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.action-btn.warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+    color: #212529 !important;
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4) !important;
+}
+
+.action-btn.warning:hover {
+    background: linear-gradient(135deg, #fd7e14, #dc3545) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.6) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.action-btn.danger {
+    background: linear-gradient(135deg, #dc3545, #fd7e14) !important;
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4) !important;
+}
+
+.action-btn.danger:hover {
+    background: linear-gradient(135deg, #c82333, #dc3545) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 10px 30px rgba(220, 53, 69, 0.6) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Filter Select Button */
+.filter-select {
+    padding: 16px 24px !important;
+    border: 2px solid rgba(2, 56, 89, 0.2) !important;
+    border-radius: 25px !important;
+    background: linear-gradient(135deg, white, #f8f9fa) !important;
+    color: #023859 !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(2, 56, 89, 0.1) !important;
+    min-width: 180px !important;
+    font-size: 0.95rem !important;
+}
+
+.filter-select:focus {
+    outline: none !important;
+    border-color: #a7ebf2 !important;
+    box-shadow: 0 0 0 0.3rem rgba(167, 235, 242, 0.25), 0 8px 25px rgba(2, 56, 89, 0.2) !important;
+    transform: translateY(-2px) !important;
+}
+
+.filter-select:hover {
+    border-color: #a7ebf2 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(2, 56, 89, 0.15) !important;
+}
+
+/* Search Input Enhancement */
+.search-input {
+    width: 100% !important;
+    padding: 16px 20px 16px 55px !important;
+    border: 2px solid rgba(2, 56, 89, 0.15) !important;
+    border-radius: 30px !important;
+    font-size: 1rem !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: linear-gradient(135deg, white, #f8f9fa) !important;
+    box-shadow: 0 4px 15px rgba(2, 56, 89, 0.08) !important;
+    color: #023859 !important;
+    font-weight: 500 !important;
+}
+
+.search-input:focus {
+    outline: none !important;
+    border-color: #a7ebf2 !important;
+    box-shadow: 0 0 0 0.3rem rgba(167, 235, 242, 0.25), 0 8px 25px rgba(2, 56, 89, 0.15) !important;
+    transform: translateY(-3px) !important;
+    background: white !important;
+}
+
+.search-input::placeholder {
+    color: rgba(2, 56, 89, 0.6) !important;
+    font-weight: 500 !important;
+}
+
+/* Modal Buttons Enhancement */
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #adb5bd) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268, #6c757d) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #023859, #a7ebf2) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #a7ebf2, #023859) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(2, 56, 89, 0.4) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #fd7e14) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333, #dc3545) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4) !important;
+}
+
+@media (max-width: 768px) {
+    .washers-header {
+        padding: 40px 20px 60px 20px !important;
+    }
+    
+    .washers-header .header-content {
+        padding-top: 40px !important;
+    }
+    
+    .washers-header .header-back-btn {
+        position: static !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .washers-header .header-text h2 {
+        font-size: 2.2rem !important;
+    }
+    
+    .washers-header .header-icon {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    
+    .action-btn {
+        min-width: 100px !important;
+        padding: 10px 16px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .add-btn {
+        padding: 14px 24px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .back-btn {
+        padding: 12px 20px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Search Row Layout Enhancement */
+.search-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+}
+
+.search-box {
+    flex: 1 !important;
+    min-width: 300px !important;
+    max-width: 400px !important;
+}
+
+.filter-select {
+    flex-shrink: 0 !important;
+}
+
+.add-btn {
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+}
+
+/* Enhanced Statistics Container */
+.stats-container {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 25px !important;
+    padding: 35px !important;
+    margin: 25px 30px !important;
+    box-shadow: 0 15px 50px rgba(2, 56, 89, 0.15) !important;
+    border: 1px solid rgba(2, 56, 89, 0.1) !important;
+    backdrop-filter: blur(15px) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stats-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #023859, #a7ebf2, #28a745, #ffc107, #dc3545);
+    opacity: 0.8;
+}
+
+.stats-header {
+    text-align: center !important;
+    margin-bottom: 30px !important;
+}
+
+.stats-header h3 {
+    color: #023859 !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 8px !important;
+    text-shadow: 0 2px 4px rgba(2, 56, 89, 0.1) !important;
+}
+
+.stats-header p {
+    color: #6c757d !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    opacity: 0.8 !important;
+}
+
+.stats-section {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 25px !important;
+}
+
+.stat-card {
+    background: white !important;
+    border-radius: 20px !important;
+    padding: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 20px !important;
+    box-shadow: 0 8px 25px rgba(2, 56, 89, 0.08) !important;
+    border: 2px solid transparent !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 15px 40px rgba(2, 56, 89, 0.15) !important;
+    border-color: rgba(2, 56, 89, 0.2) !important;
+}
+
+.stat-icon {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.8rem !important;
+    color: white !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.stat-content {
+    flex: 1 !important;
+}
+
+.stat-number {
+    font-size: 2.8rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 5px !important;
+    line-height: 1 !important;
+}
+
+.stat-label {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    opacity: 0.8 !important;
+}
+
+/* Individual stat card themes */
+.total-staff .stat-icon {
+    background: linear-gradient(135deg, #023859, #a7ebf2) !important;
+}
+
+.total-staff::before {
+    background: linear-gradient(90deg, #023859, #a7ebf2) !important;
+}
+
+.total-staff .stat-number {
+    color: #023859 !important;
+}
+
+.total-staff .stat-label {
+    color: #023859 !important;
+}
+
+.available-staff .stat-icon {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.available-staff::before {
+    background: linear-gradient(90deg, #28a745, #20c997) !important;
+}
+
+.available-staff .stat-number {
+    color: #28a745 !important;
+}
+
+.available-staff .stat-label {
+    color: #28a745 !important;
+}
+
+.busy-staff .stat-icon {
+    background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+}
+
+.busy-staff::before {
+    background: linear-gradient(90deg, #ffc107, #fd7e14) !important;
+}
+
+.busy-staff .stat-number {
+    color: #ffc107 !important;
+}
+
+.busy-staff .stat-label {
+    color: #ffc107 !important;
+}
+
+.offline-staff .stat-icon {
+    background: linear-gradient(135deg, #dc3545, #fd7e14) !important;
+}
+
+.offline-staff::before {
+    background: linear-gradient(90deg, #dc3545, #fd7e14) !important;
+}
+
+.offline-staff .stat-number {
+    color: #dc3545 !important;
+}
+
+.offline-staff .stat-label {
+    color: #dc3545 !important;
+}
+
+@media (max-width: 768px) {
+    .search-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .search-box {
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .add-btn {
+        margin-left: 0 !important;
+        align-self: center !important;
+    }
+    
+    .stats-container {
+        margin: 20px 15px !important;
+        padding: 25px !important;
+    }
+    
+    .stats-section {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+    }
+    
+    .stat-card {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 15px !important;
+        padding: 20px !important;
+    }
+    
+    .stat-icon {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .stat-number {
+        font-size: 2.2rem !important;
+    }
+    
+    .stat-label {
+        font-size: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-section {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<div class="washers-container">
+    <div class="washers-card">
+        <!-- Header Section -->
+        <div class="washers-header">
+            <div class="header-content">
+                <div class="header-back-btn">
+                    <a href="{% url 'carwash_admin:dashboard' %}" class="back-btn">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+                <div class="header-main-content">
+                    <div class="header-icon">
+                        <i class="fas fa-user-tie fa-3x"></i>
+                    </div>
+                    <div class="header-text">
+                        <h2>{{ title }}</h2>
+                        <p>
+                            <i class="fas fa-users me-2"></i>
+                            {{ washers|length }} Staff Members
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-section">
+            <div class="search-row">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="washerSearch" placeholder="Search staff by name or email...">
+                </div>
+                <div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="busy">Busy</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                </div>
+                <div>
+                    <a href="{% url 'carwash_admin:add_washer' %}" class="add-btn">
+                        <i class="fas fa-plus me-2"></i>Add Staff Member
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-container">
+            <div class="stats-header">
+                <h3><i class="fas fa-chart-bar me-2"></i>Staff Overview</h3>
+                <p>Real-time statistics of your car wash staff</p>
+            </div>
+            <div class="stats-section">
+                <div class="stat-card fade-in total-staff">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ total_washers }}</div>
+                        <div class="stat-label">Total Staff</div>
+                    </div>
+                </div>
+                <div class="stat-card fade-in available-staff">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ available_washers }}</div>
+                        <div class="stat-label">Available</div>
+                    </div>
+                </div>
+                <div class="stat-card fade-in busy-staff">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ busy_washers }}</div>
+                        <div class="stat-label">Busy</div>
+                    </div>
+                </div>
+                <div class="stat-card fade-in offline-staff">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ offline_washers }}</div>
+                        <div class="stat-label">Offline</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Washers Section -->
+        <div class="washers-section">
+            {% if washers %}
+                <div class="washers-grid" id="washersGrid">
+                    {% for washer in washers %}
+                    <div class="washer-card fade-in" data-washer-name="{{ washer.first_name }} {{ washer.last_name }}" data-washer-email="{{ washer.email }}" data-status="{% if washer.active_orders > 0 %}busy{% elif washer.is_available and washer.status == 'active' %}available{% else %}offline{% endif %}">
+                        <div class="washer-header">
+                            <div class="washer-avatar">
+                                {{ washer.first_name|first }}{{ washer.last_name|first }}
+                            </div>
+                            <div class="washer-info">
+                                <h5>{{ washer.first_name }} {{ washer.last_name }}</h5>
+                                <div class="text-muted">
+                                    <i class="fas fa-envelope me-1"></i>{{ washer.email }}
+                                </div>
+                                {% if washer.phone %}
+                                <div class="text-muted">
+                                    <i class="fas fa-phone me-1"></i>{{ washer.phone }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="status-badge status-{% if washer.active_orders > 0 %}busy{% elif washer.is_available and washer.status == 'active' %}available{% else %}offline{% endif %}">
+                                {% if washer.active_orders > 0 %}Busy{% elif washer.is_available and washer.status == 'active' %}Available{% else %}Offline{% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="washer-stats">
+                            <div class="washer-stat">
+                                <div class="washer-stat-number">{{ washer.completed_orders }}</div>
+                                <div class="washer-stat-label">Completed</div>
+                            </div>
+                            <div class="washer-stat">
+                                <div class="washer-stat-number">{{ washer.active_orders }}</div>
+                                <div class="washer-stat-label">Active</div>
+                            </div>
+                            <div class="washer-stat">
+                                <div class="washer-stat-number">{{ washer.rating|floatformat:1 }}</div>
+                                <div class="washer-stat-label">Rating</div>
+                            </div>
+                        </div>
+                        
+                        <div class="washer-actions">
+                            <button class="action-btn primary" data-bs-toggle="modal" data-bs-target="#washerModal{{ washer.washer_id }}">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </button>
+                            <a href="{% url 'carwash_admin:toggle_washer_status' washer.washer_id %}" class="action-btn warning">
+                                <i class="fas fa-toggle-on me-1"></i>Toggle Status
+                            </a>
+                            <button class="action-btn danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ washer.washer_id }}">
+                                <i class="fas fa-trash me-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4>No Staff Members Found</h4>
+                    <p>No staff members have been added yet. Add staff members to manage your car wash operations.</p>
+                    <a href="{% url 'carwash_admin:add_washer' %}" class="add-btn mt-3">
+                        <i class="fas fa-plus me-2"></i>Add First Staff Member
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Washer Details Modals -->
+{% for washer in washers %}
+<div class="modal fade" id="washerModal{{ washer.washer_id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <div class="washer-avatar me-3">
+                        {{ washer.first_name|first }}{{ washer.last_name|first }}
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0">{{ washer.first_name }} {{ washer.last_name }}</h5>
+                        <small class="opacity-75">Staff ID: #{{ washer.washer_id }}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-card mb-3">
+                            <div class="stat-number">{{ washer.completed_orders }}</div>
+                            <div class="stat-label">Completed Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card mb-3">
+                            <div class="stat-number">{{ washer.active_orders }}</div>
+                            <div class="stat-label">Active Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card mb-3">
+                            <div class="stat-number">{{ washer.rating|floatformat:1 }}</div>
+                            <div class="stat-label">Average Rating</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Contact Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ washer.email }}</p>
+                            <p><strong>Phone:</strong> {{ washer.phone|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> <span class="status-badge status-{% if washer.active_orders > 0 %}busy{% elif washer.is_available and washer.status == 'active' %}available{% else %}offline{% endif %}">{% if washer.active_orders > 0 %}Busy{% elif washer.is_available and washer.status == 'active' %}Available{% else %}Offline{% endif %}</span></p>
+                            <p><strong>Joined:</strong> {{ washer.date_hired|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if washer.specialties %}
+                <div class="mt-4">
+                    <h6 class="mb-3"><i class="fas fa-star me-2 text-primary"></i>Specialties</h6>
+                    <p>{{ washer.specialties }}</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <a href="{% url 'carwash_admin:edit_washer' washer.washer_id %}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Staff Member
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal{{ washer.washer_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Remove Staff Member
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="washer-avatar mx-auto mb-3">
+                        {{ washer.first_name|first }}{{ washer.last_name|first }}
+                    </div>
+                    <h5>{{ washer.first_name }} {{ washer.last_name }}</h5>
+                    <p class="text-muted">{{ washer.email }}</p>
+                </div>
+                
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action will remove this staff member from the system. Any active orders will need to be reassigned.
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-number text-danger">{{ washer.completed_orders }}</div>
+                            <div class="stat-label">Completed Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-number text-danger">{{ washer.active_orders }}</div>
+                            <div class="stat-label">Active Orders</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="{% url 'carwash_admin:delete_washer' washer.washer_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Remove Staff Member
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced search and filter functionality
+    const searchInput = document.getElementById('washerSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    searchInput.addEventListener('input', filterWashers);
+    statusFilter.addEventListener('change', filterWashers);
+    
+    // Animate cards on scroll
+    const washerCards = document.querySelectorAll('.washer-card');
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    washerCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Enhanced search functionality with better filtering
+function filterWashers() {
+    const searchInput = document.getElementById('washerSearch');
+    const statusFilterElement = document.getElementById('statusFilter');
+    const washerCards = document.querySelectorAll('.washer-card');
+    
+    if (!searchInput || !statusFilterElement) return;
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    const statusFilter = statusFilterElement.value;
+    
+    let visibleCount = 0;
+    
+    washerCards.forEach(card => {
+        const name = (card.dataset.washerName || '').toLowerCase();
+        const email = (card.dataset.washerEmail || '').toLowerCase();
+        const status = card.dataset.status || '';
+        
+        const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+        const matchesStatus = !statusFilter || status === statusFilter;
+        
+        if (matchesSearch && matchesStatus) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show/hide empty state
+    const emptyState = document.querySelector('.empty-state');
+    const washersGrid = document.querySelector('.washers-grid');
+    
+    if (washersGrid && visibleCount === 0 && washerCards.length > 0) {
+        if (!emptyState) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty-state';
+            emptyDiv.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4>No Staff Members Found</h4>
+                <p>No staff members match your current search criteria. Try adjusting your filters.</p>
+            `;
+            washersGrid.appendChild(emptyDiv);
+        }
+    } else if (emptyState && visibleCount > 0) {
+        emptyState.remove();
+    }
+}
+</script>
+{% endblock %}

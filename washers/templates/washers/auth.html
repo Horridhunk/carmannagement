@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Washer Authentication</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'washers/css/washer.css' %}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Tab Navigation -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
+                <button class="auth-tab" data-tab="signup">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div class="auth-form-container" id="login-form">
+                <div class="auth-header">
+                    <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+                    <p>Access your washer dashboard</p>
+                </div>
+                
+                <div class="form-content">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'washers:login' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3 form-group">
+                            <label for="login-email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" id="login-email" name="email" 
+                                   placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="mb-3 form-group">
+                            <label for="login-password" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            <input type="password" class="form-control" id="login-password" name="password" 
+                                   placeholder="Enter your password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Dashboard
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="auth-form-container hidden" id="signup-form">
+                <div class="auth-header">
+                    <h2><i class="fas fa-user-plus"></i> Join Our Team</h2>
+                    <p>Create your washer account</p>
+                </div>
+                
+                <div class="form-content">
+                    <form method="post" action="{% url 'washers:signup' %}">
+                        {% csrf_token %}
+                        
+                        <div class="row form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="signup-first-name" class="form-label">
+                                    <i class="fas fa-user me-2"></i>First Name
+                                </label>
+                                <input type="text" class="form-control" id="signup-first-name" name="first_name" 
+                                       placeholder="First name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signup-last-name" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control" id="signup-last-name" name="last_name" 
+                                       placeholder="Last name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-row">
+                            <label for="signup-email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" id="signup-email" name="email" 
+                                   placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="mb-3 form-row">
+                            <label for="signup-phone" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Phone Number <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" class="form-control" id="signup-phone" name="phone" 
+                                   placeholder="01XX XXX XXX" required>
+                            <div class="text-muted small">Must start with 01 or 07 and contain exactly 10 digits</div>
+                        </div>
+
+                        <div class="row form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="signup-password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <input type="password" class="form-control" id="signup-password" name="password" 
+                                       placeholder="Create password" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signup-confirm-password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Confirm Password
+                                </label>
+                                <input type="password" class="form-control" id="signup-confirm-password" name="confirm_password" 
+                                       placeholder="Confirm password" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Create Washer Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form-container');
+            
+            // Tab switching functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.dataset.tab;
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all forms
+                    forms.forEach(form => {
+                        form.classList.add('hidden');
+                        form.style.opacity = '0';
+                        form.style.transform = 'translateY(20px)';
+                    });
+                    
+                    // Show target form with animation
+                    setTimeout(() => {
+                        const targetForm = document.getElementById(targetTab + '-form');
+                        targetForm.classList.remove('hidden');
+                        setTimeout(() => {
+                            targetForm.style.opacity = '1';
+                            targetForm.style.transform = 'translateY(0)';
+                        }, 50);
+                    }, 200);
+                });
+            });
+            
+            // Phone validation for signup
+            const phoneInput = document.querySelector('#signup-phone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function() {
+                    const phone = this.value.replace(/[\s\-]/g, '');
+                    const isValid = /^(01|07)\d{8}$/.test(phone);
+                    
+                    this.classList.remove('is-valid', 'is-invalid');
+                    
+                    if (phone.length > 0) {
+                        if (isValid && phone.length === 10) {
+                            this.classList.add('is-valid');
+                        } else if (phone.length >= 3) {
+                            this.classList.add('is-invalid');
+                        }
+                    }
+                });
+                
+                phoneInput.addEventListener('blur', function() {
+                    const phone = this.value.replace(/[\s\-]/g, '');
+                    if (phone.length === 10 && /^(01|07)\d{8}$/.test(phone)) {
+                        this.value = phone.substring(0, 4) + ' ' + phone.substring(4, 7) + ' ' + phone.substring(7);
+                    }
+                });
+            }
+            
+            // Password confirmation validation
+            const passwordInput = document.querySelector('#signup-password');
+            const confirmPasswordInput = document.querySelector('#signup-confirm-password');
+            
+            if (passwordInput && confirmPasswordInput) {
+                function validatePasswords() {
+                    if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                        confirmPasswordInput.classList.add('is-invalid');
+                        confirmPasswordInput.classList.remove('is-valid');
+                    } else if (confirmPasswordInput.value && passwordInput.value === confirmPasswordInput.value) {
+                        confirmPasswordInput.classList.add('is-valid');
+                        confirmPasswordInput.classList.remove('is-invalid');
+                    }
+                }
+                
+                passwordInput.addEventListener('input', validatePasswords);
+                confirmPasswordInput.addEventListener('input', validatePasswords);
+            }
+        });
+    </script>
+</body>
+</html>

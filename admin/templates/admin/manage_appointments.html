@@ -1,0 +1,232 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }} - Car Wash Management{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="admin-container">
+    <div class="admin-card fade-in">
+        <div class="admin-header p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-2">
+                        <i class="fas fa-calendar-check me-2"></i>{{ title }}
+                    </h2>
+                    <p class="mb-0 text-white opacity-75">View and manage all appointments</p>
+                </div>
+                <div>
+                    <a href="{% url 'carwash_admin:dashboard' %}" class="btn btn-outline-light hover-lift">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show slide-up" role="alert">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Upcoming Appointments -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="fas fa-clock me-2"></i>Upcoming Appointments ({{ upcoming_appointments|length }})
+                    </h5>
+                    
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="appointment-card mb-3 slide-up">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <div class="text-center">
+                                        <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                                        <h6 class="mb-0 fw-bold">{{ appointment.time_slot.date|date:"M d" }}</h6>
+                                        <small class="text-muted">{{ appointment.time_slot.date|date:"Y" }}</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="mb-1 text-dark">{{ appointment.time_slot.start_time|time:"g:i A" }} - {{ appointment.time_slot.end_time|time:"g:i A" }}</h6>
+                                    <p class="mb-1 text-muted">{{ appointment.client.first_name }} {{ appointment.client.last_name }}</p>
+                                    <small class="text-muted">{{ appointment.client.email }}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <h6 class="mb-1">{{ appointment.vehicle }}</h6>
+                                    <small class="text-muted">{{ appointment.get_wash_type_display }}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    {% if appointment.wash_order %}
+                                        {% if appointment.wash_order.status == 'pending' %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                        {% elif appointment.wash_order.status == 'assigned' %}
+                                            <span class="status-badge status-assigned">
+                                                <i class="fas fa-user-check me-1"></i>Assigned
+                                            </span>
+                                        {% elif appointment.wash_order.status == 'in_progress' %}
+                                            <span class="status-badge status-progress">
+                                                <i class="fas fa-play me-1"></i>In Progress
+                                            </span>
+                                        {% elif appointment.wash_order.status == 'completed' %}
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check me-1"></i>Completed
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="status-badge status-scheduled">
+                                            <i class="fas fa-calendar me-1"></i>Scheduled
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    {% if appointment.wash_order %}
+                                        <h6 class="mb-0 text-success fw-bold">${{ appointment.wash_order.price }}</h6>
+                                    {% else %}
+                                        <h6 class="mb-0 text-muted">No Order</h6>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if appointment.wash_order %}
+                                            <li><a class="dropdown-item" href="{% url 'carwash_admin:manage_orders' %}">
+                                                <i class="fas fa-eye me-2"></i>View Order
+                                            </a></li>
+                                            {% endif %}
+                                            <li><a class="dropdown-item text-danger" href="#" onclick="cancelAppointment({{ appointment.id }})">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if appointment.special_instructions %}
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sticky-note me-1"></i><strong>Instructions:</strong> {{ appointment.special_instructions }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-plus fa-5x mb-3"></i>
+                            <h4>No Upcoming Appointments</h4>
+                            <p class="text-muted">No appointments are scheduled for the future.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Past Appointments -->
+            {% if past_appointments %}
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="fas fa-history me-2"></i>Recent Past Appointments
+                    </h5>
+                    
+                    {% for appointment in past_appointments %}
+                    <div class="appointment-card slide-up" style="opacity: 0.8;">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+                                    <h6 class="mb-0">{{ appointment.time_slot.date|date:"M d" }}</h6>
+                                    <small class="text-muted">{{ appointment.time_slot.date|date:"Y" }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">{{ appointment.time_slot.start_time|time:"g:i A" }} - {{ appointment.time_slot.end_time|time:"g:i A" }}</h6>
+                                <p class="mb-1 text-muted">{{ appointment.client.first_name }} {{ appointment.client.last_name }}</p>
+                                <small class="text-muted">{{ appointment.vehicle }} - {{ appointment.get_wash_type_display }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                {% if appointment.is_cancelled %}
+                                    <span class="status-badge status-cancelled">
+                                        <i class="fas fa-times me-1"></i>Cancelled
+                                    </span>
+                                {% elif appointment.wash_order %}
+                                    {% if appointment.wash_order.status == 'completed' %}
+                                        <span class="status-badge status-completed">
+                                            <i class="fas fa-check me-1"></i>Completed
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge status-{{ appointment.wash_order.status }}">
+                                            {{ appointment.wash_order.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                {% if appointment.wash_order %}
+                                    <h6 class="mb-0 text-success">${{ appointment.wash_order.price }}</h6>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                {% if appointment.wash_order %}
+                                <a href="{% url 'carwash_admin:manage_orders' %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-receipt me-1"></i>Details
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function cancelAppointment(appointmentId) {
+    if (confirm('Are you sure you want to cancel this appointment? The client will be notified.')) {
+        // Create a form to submit the cancellation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/carwash-admin/appointments/cancel/${appointmentId}/`;
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+            
+            // Add cancellation reason
+            const reasonInput = document.createElement('input');
+            reasonInput.type = 'hidden';
+            reasonInput.name = 'reason';
+            reasonInput.value = 'Cancelled by admin';
+            form.appendChild(reasonInput);
+        } else {
+            console.error('CSRF token not found');
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

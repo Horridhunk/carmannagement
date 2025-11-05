@@ -1,0 +1,463 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<style>
+/* Edit Washer Form Styling */
+.edit-washer-container {
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.edit-washer-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 0 15px 50px rgba(2, 56, 89, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-washer-header {
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.edit-washer-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+.edit-washer-header .header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.edit-washer-header .header-icon {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 10;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.form-section {
+    padding: 40px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #023859;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.form-control {
+    border: 2px solid rgba(2, 56, 89, 0.15);
+    border-radius: 15px;
+    padding: 15px 20px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #a7ebf2;
+    box-shadow: 0 0 0 0.3rem rgba(167, 235, 242, 0.25);
+    transform: translateY(-2px);
+    background: white;
+}
+
+.form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid #023859;
+    border-radius: 6px;
+}
+
+.form-check-input:checked {
+    background-color: #023859;
+    border-color: #023859;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.6);
+}
+
+.alert {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.password-section {
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #ffc107;
+}
+
+.password-section h6 {
+    color: #023859;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .edit-washer-container {
+        padding: 15px;
+    }
+    
+    .form-section {
+        padding: 25px;
+    }
+    
+    .edit-washer-header {
+        padding: 30px 20px;
+    }
+    
+    .back-btn {
+        position: static;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+}
+</style>
+
+<div class="edit-washer-container">
+    <div class="edit-washer-card">
+        <!-- Header Section -->
+        <div class="edit-washer-header">
+            <a href="{% url 'carwash_admin:manage_washers' %}" class="back-btn">
+                <i class="fas fa-arrow-left me-2"></i>Back to Staff
+            </a>
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-user-edit fa-2x"></i>
+                </div>
+                <h2>{{ title }}</h2>
+                <p>Update staff member information and settings</p>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-user me-2"></i>First Name
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.help_text %}
+                                <div class="help-text">{{ form.first_name.help_text }}</div>
+                            {% endif %}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.first_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-user me-2"></i>Last Name
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.help_text %}
+                                <div class="help-text">{{ form.last_name.help_text }}</div>
+                            {% endif %}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.last_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.help_text %}
+                                <div class="help-text">{{ form.email.help_text }}</div>
+                            {% endif %}
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            {{ form.phone }}
+                            {% if form.phone.help_text %}
+                                <div class="help-text">{{ form.phone.help_text }}</div>
+                            {% endif %}
+                            {% if form.phone.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Change Section -->
+                <div class="password-section">
+                    <h6><i class="fas fa-lock me-2"></i>Change Password (Optional)</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.new_password.id_for_label }}" class="form-label">
+                                    New Password
+                                </label>
+                                {{ form.new_password }}
+                                {% if form.new_password.help_text %}
+                                    <div class="help-text">{{ form.new_password.help_text }}</div>
+                                {% endif %}
+                                {% if form.new_password.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.new_password.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.confirm_password.id_for_label }}" class="form-label">
+                                    Confirm New Password
+                                </label>
+                                {{ form.confirm_password }}
+                                {% if form.confirm_password.help_text %}
+                                    <div class="help-text">{{ form.confirm_password.help_text }}</div>
+                                {% endif %}
+                                {% if form.confirm_password.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.confirm_password.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Settings -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="{{ form.hourly_rate.id_for_label }}" class="form-label">
+                                <i class="fas fa-dollar-sign me-2"></i>Hourly Rate
+                            </label>
+                            {{ form.hourly_rate }}
+                            {% if form.hourly_rate.help_text %}
+                                <div class="help-text">{{ form.hourly_rate.help_text }}</div>
+                            {% endif %}
+                            {% if form.hourly_rate.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.hourly_rate.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-clock me-2"></i>Status
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.help_text %}
+                                <div class="help-text">{{ form.status.help_text }}</div>
+                            {% endif %}
+                            {% if form.status.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check mt-4">
+                                {{ form.is_available }}
+                                <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                                    <i class="fas fa-check-circle me-2"></i>Available for Work
+                                </label>
+                            </div>
+                            {% if form.is_available.help_text %}
+                                <div class="help-text">{{ form.is_available.help_text }}</div>
+                            {% endif %}
+                            {% if form.is_available.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.is_available.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save me-2"></i>Update Staff Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add form submission feedback
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('.btn-submit');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            // Re-enable after 5 seconds if form doesn't redirect
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
+    }
+});
+</script>
+
+{% endblock %}

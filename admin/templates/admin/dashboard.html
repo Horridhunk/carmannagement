@@ -1,0 +1,327 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }} - Car Wash Management{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="admin-container">
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header Section -->
+            <div class="admin-header p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar me-3">
+                            {{ user.first_name|first|upper|default:user.username|first|upper }}{{ user.last_name|first|upper|default:user.username|slice:"1:2"|upper }}
+                        </div>
+                        <div>
+                            <h2 class="mb-1">{{ title }}</h2>
+                            <p class="mb-0 opacity-90">
+                                <i class="fas fa-user-shield me-2"></i>
+                                Welcome back, <strong>{{ user.first_name|default:user.username }}</strong>!
+                            </p>
+                            <small class="opacity-75 d-block mt-1">
+                                <i class="fas fa-calendar-day me-1"></i>
+                                {% now "F j, Y - g:i A" %}
+                            </small>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{% url 'carwash_admin:logout' %}" class="btn btn-outline-light">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="p-4">
+                <div class="stats-header mb-4">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Business Overview
+                    </h3>
+                    <p class="section-subtitle">Real-time system metrics and performance indicators</p>
+                </div>
+                
+                <div class="quick-stats">
+                    <a href="{% url 'carwash_admin:manage_orders' %}" class="metric-display metric-primary fade-in text-decoration-none" data-aos="fade-up" data-aos-delay="100">
+                        <div class="metric-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number">{{ stats.total_orders|default:0 }}</div>
+                            <div class="metric-label">Total Orders</div>
+                            <div class="metric-trend">
+                                <i class="fas fa-arrow-up text-success"></i>
+                                <span class="trend-text">Click to view all orders</span>
+                            </div>
+                        </div>
+                        <div class="metric-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'carwash_admin:manage_clients' %}" class="metric-display metric-success fade-in text-decoration-none" data-aos="fade-up" data-aos-delay="200">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number">{{ stats.total_clients|default:0 }}</div>
+                            <div class="metric-label">Total Clients</div>
+                            <div class="metric-trend">
+                                <i class="fas fa-arrow-up text-success"></i>
+                                <span class="trend-text">Click to manage clients</span>
+                            </div>
+                        </div>
+                        <div class="metric-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'carwash_admin:manage_washers' %}" class="metric-display metric-info fade-in text-decoration-none" data-aos="fade-up" data-aos-delay="300">
+                        <div class="metric-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number">{{ stats.total_washers|default:0 }}</div>
+                            <div class="metric-label">Staff Members</div>
+                            <div class="metric-status">
+                                <span class="status-badge available">{{ stats.available_washers|default:0 }} Available</span>
+                            </div>
+                        </div>
+                        <div class="metric-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'carwash_admin:analytics' %}" class="metric-display metric-warning fade-in text-decoration-none" data-aos="fade-up" data-aos-delay="400">
+                        <div class="metric-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number">${{ stats.total_revenue|default:0 }}</div>
+                            <div class="metric-label">Total Revenue</div>
+                            <div class="metric-trend">
+                                <i class="fas fa-arrow-up text-success"></i>
+                                <span class="trend-text">Click to view analytics</span>
+                            </div>
+                        </div>
+                        <div class="metric-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'carwash_admin:manage_appointments' %}" class="metric-display metric-secondary fade-in text-decoration-none" data-aos="fade-up" data-aos-delay="500">
+                        <div class="metric-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number">{{ stats.scheduled_appointments|default:0 }}</div>
+                            <div class="metric-label">Scheduled Appointments</div>
+                            <div class="metric-trend">
+                                <i class="fas fa-arrow-up text-success"></i>
+                                <span class="trend-text">Click to manage appointments</span>
+                            </div>
+                        </div>
+                        <div class="metric-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+
+
+
+                <!-- Pending Orders Section -->
+                <h4 class="mb-3 mt-4"><i class="fas fa-clock me-2 text-warning"></i>Pending Orders - Needs Assignment</h4>
+                {% if pending_orders %}
+                    <div class="row">
+                        {% for order in pending_orders %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="pending-order-card fade-in">
+                                <div class="order-header">
+                                    <div class="order-id">#{{ order.order_id }}</div>
+                                    <div class="order-status">
+                                        <span class="badge bg-warning">PENDING</span>
+                                    </div>
+                                </div>
+                                <div class="order-details">
+                                    <div class="client-info">
+                                        <div class="client-avatar">
+                                            {{ order.client.first_name|first|upper }}{{ order.client.last_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ order.client.first_name }} {{ order.client.last_name }}</strong>
+                                            <div class="text-muted small">{{ order.client.email }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="vehicle-info mt-2">
+                                        <i class="fas fa-car me-2 text-primary"></i>
+                                        <strong>{{ order.vehicle }}</strong>
+                                    </div>
+                                    <div class="service-info mt-2">
+                                        <i class="fas fa-spray-can me-2 text-info"></i>
+                                        {{ order.get_wash_type_display }} - <strong>${{ order.price }}</strong>
+                                    </div>
+                                    <div class="time-info mt-2">
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        {{ order.created_at|timesince }} ago
+                                    </div>
+                                </div>
+                                <div class="order-actions">
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignModal{{ order.order_id }}">
+                                        <i class="fas fa-user-plus me-1"></i>Assign Washer
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder({{ order.order_id }})">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'carwash_admin:manage_orders' %}?status=pending" class="btn btn-warning">
+                            <i class="fas fa-list me-2"></i>View All Pending Orders
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5>No Pending Orders</h5>
+                        <p class="text-muted">All orders are currently assigned or completed.</p>
+                    </div>
+                {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!-- 
+Assignment Modals -->
+{% for order in pending_orders %}
+<div class="modal fade" id="assignModal{{ order.order_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Assign Washer to Order #{{ order.order_id }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="order-summary mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="client-avatar me-3">
+                            {{ order.client.first_name|first|upper }}{{ order.client.last_name|first|upper }}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ order.client.first_name }} {{ order.client.last_name }}</h6>
+                            <small class="text-muted">{{ order.vehicle }} • {{ order.get_wash_type_display }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" action="{% url 'carwash_admin:assign_washer' order.order_id %}" id="assignForm{{ order.order_id }}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Select Available Washer (No Active Orders):</strong></label>
+                        {% if available_washers %}
+                            <div class="washer-selection">
+                                {% for washer in available_washers %}
+                                <div class="form-check washer-option">
+                                    <input class="form-check-input" type="radio" name="washer_id" value="{{ washer.washer_id }}" id="washer{{ washer.washer_id }}_{{ order.order_id }}">
+                                    <label class="form-check-label" for="washer{{ washer.washer_id }}_{{ order.order_id }}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="washer-avatar me-3">
+                                                {{ washer.first_name|first|upper }}{{ washer.last_name|first|upper }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ washer.first_name }} {{ washer.last_name }}</strong>
+                                                <div class="text-muted small">
+                                                    <i class="fas fa-check-circle me-1 text-success"></i>Available (No active orders)
+                                                    <span class="ms-2"><i class="fas fa-star me-1"></i>{{ washer.completed_orders|default:0 }} completed</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>No washers available for assignment.</strong><br>
+                                All washers are either busy with active orders or marked as unavailable. 
+                                Please wait for current orders to be completed or check staff availability.
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                {% if available_washers %}
+                <button type="button" class="btn btn-primary" onclick="submitAssignment({{ order.order_id }})">
+                    <i class="fas fa-user-plus me-2"></i>Assign Washer
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+        // Show loading state
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cancelling...';
+        button.disabled = true;
+        
+        // Create a form and submit it to handle CSRF properly
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/carwash-admin/orders/cancel/${orderId}/`;
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        } else {
+            console.error('CSRF token not found');
+            button.innerHTML = originalText;
+            button.disabled = false;
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function submitAssignment(orderId) {
+    const form = document.getElementById(`assignForm${orderId}`);
+    const selectedWasher = form.querySelector('input[name="washer_id"]:checked');
+    
+    if (!selectedWasher) {
+        alert('Please select a washer to assign.');
+        return;
+    }
+    
+    form.submit();
+}
+</script>
