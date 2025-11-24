@@ -80,15 +80,10 @@ WSGI_APPLICATION = 'mysystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# to connect to a MySQL database, update the DATABASES setting as follows:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'systemusers',
-        'USER': 'horrid',
-        'PASSWORD': 'monster',
-        'HOST': 'localhost',  # or the IP address of your MySQL server
-        'PORT': '3306',       # the default MySQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
