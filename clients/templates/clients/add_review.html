@@ -44,24 +44,33 @@
         }
         .rating-input {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin: 20px 0;
-            font-size: 2rem;
+            font-size: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .rating-input input[type="radio"] {
             display: none;
         }
-        .rating-input label {
+        .rating-label {
             cursor: pointer;
             color: #ddd;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            user-select: none;
         }
-        .rating-input input[type="radio"]:checked ~ label,
-        .rating-input label:hover,
-        .rating-input label:hover ~ label {
+        .rating-label:hover {
             color: #ffc107;
+            transform: scale(1.2);
         }
-        .rating-input input[type="radio"]:checked ~ label ~ label {
+        .rating-input input[type="radio"]:checked + .rating-label {
+            color: #ffc107;
+            transform: scale(1.3);
+        }
+        .rating-input input[type="radio"]:checked + .rating-label ~ .rating-label {
             color: #ddd;
         }
         .form-control:focus {
@@ -122,22 +131,23 @@
                     <!-- Rating Selection -->
                     <div class="mb-4">
                         <label class="form-label"><strong>How would you rate your experience?</strong></label>
-                        <div class="rating-input">
-                            <input type="radio" id="rating5" name="rating" value="5" required>
-                            <label for="rating5"><i class="fas fa-star"></i></label>
-                            
-                            <input type="radio" id="rating4" name="rating" value="4">
-                            <label for="rating4"><i class="fas fa-star"></i></label>
-                            
-                            <input type="radio" id="rating3" name="rating" value="3">
-                            <label for="rating3"><i class="fas fa-star"></i></label>
+                        <div class="rating-input" id="rating-container">
+                            <input type="radio" id="rating1" name="rating" value="1" required>
+                            <label for="rating1" class="rating-label" title="Poor"><i class="fas fa-star"></i></label>
                             
                             <input type="radio" id="rating2" name="rating" value="2">
-                            <label for="rating2"><i class="fas fa-star"></i></label>
+                            <label for="rating2" class="rating-label" title="Fair"><i class="fas fa-star"></i></label>
                             
-                            <input type="radio" id="rating1" name="rating" value="1">
-                            <label for="rating1"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="rating3" name="rating" value="3">
+                            <label for="rating3" class="rating-label" title="Good"><i class="fas fa-star"></i></label>
+                            
+                            <input type="radio" id="rating4" name="rating" value="4">
+                            <label for="rating4" class="rating-label" title="Very Good"><i class="fas fa-star"></i></label>
+                            
+                            <input type="radio" id="rating5" name="rating" value="5">
+                            <label for="rating5" class="rating-label" title="Excellent"><i class="fas fa-star"></i></label>
                         </div>
+                        <div id="rating-text" class="mt-2 text-center" style="font-weight: 600; color: #023859; min-height: 25px;"></div>
                     </div>
 
                     <!-- Comment -->
@@ -169,6 +179,25 @@
             if (this.value.length > 500) {
                 this.value = this.value.substring(0, 500);
             }
+        });
+
+        // Rating display text
+        const ratingTexts = {
+            1: '😞 Poor - Needs improvement',
+            2: '😐 Fair - Could be better',
+            3: '😊 Good - Satisfied',
+            4: '😄 Very Good - Impressed',
+            5: '🤩 Excellent - Highly satisfied!'
+        };
+
+        const ratingInputs = document.querySelectorAll('input[name="rating"]');
+        const ratingText = document.getElementById('rating-text');
+
+        ratingInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                ratingText.textContent = ratingTexts[this.value];
+                ratingText.style.color = '#ffc107';
+            });
         });
     </script>
 </body>
