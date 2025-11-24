@@ -1,5 +1,24 @@
 from django.contrib import admin
+from django import forms
 from .models import Client, PasswordResetToken, Vehicle, WashOrder, TimeSlot, Appointment
+
+class TimeSlotForm(forms.ModelForm):
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        input_formats=['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y']
+    )
+    start_time = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time'}),
+        input_formats=['%H:%M', '%H:%M:%S']
+    )
+    end_time = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time'}),
+        input_formats=['%H:%M', '%H:%M:%S']
+    )
+    
+    class Meta:
+        model = TimeSlot
+        fields = '__all__'
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
@@ -22,6 +41,7 @@ class WashOrderAdmin(admin.ModelAdmin):
 
 @admin.register(TimeSlot)
 class TimeSlotAdmin(admin.ModelAdmin):
+    form = TimeSlotForm
     list_display = ('date', 'start_time', 'end_time', 'max_capacity', 'booking_count', 'is_active')
     search_fields = ('date',)
     list_filter = ('date', 'is_active')
