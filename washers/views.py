@@ -390,8 +390,7 @@ def debug_password_view(request):
         return redirect('washers:login')
 
 
-de
-f washer_completed_orders_view(request):
+def washer_completed_orders_view(request):
     """View completed orders with client reviews"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
