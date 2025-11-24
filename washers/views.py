@@ -388,3 +388,48 @@ def debug_password_view(request):
         
     except Washer.DoesNotExist:
         return redirect('washers:login')
+
+
+de
+f washer_completed_orders_view(request):
+    """View completed orders with client reviews"""
+    if 'washer_id' not in request.session:
+        messages.error(request, 'Please log in to access this page.')
+        return redirect('washers:login')
+    
+    washer_id = request.session.get('washer_id')
+    washer_name = request.session.get('washer_name', 'Washer')
+    
+    try:
+        washer = Washer.objects.get(washer_id=washer_id)
+        
+        from clients.models import WashOrder, Review
+        
+        # Get completed orders for this washer
+        completed_orders = WashOrder.objects.filter(
+            washer=washer,
+            status='completed'
+        ).select_related('client', 'vehicle').order_by('-completed_at')
+        
+        # Get reviews for completed orders
+        reviews_dict = {}
+        for order in completed_orders:
+            try:
+                review = Review.objects.get(wash_order=order)
+                reviews_dict[order.order_id] = review
+            except Review.DoesNotExist:
+                reviews_dict[order.order_id] = None
+        
+        context = {
+            'washer_name': washer_name,
+            'washer': washer,
+            'completed_orders': completed_orders,
+            'reviews_dict': reviews_dict,
+            'total_completed': completed_orders.count(),
+        }
+        
+        return render(request, 'washers/completed_orders.html', context)
+        
+    except Washer.DoesNotExist:
+        messages.error(request, 'Washer account not found.')
+        return redirect('washers:login')

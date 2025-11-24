@@ -562,13 +562,16 @@
                     <div class="stat-number">{{ in_progress_orders }}</div>
                     <div class="stat-label">In Progress</div>
                 </div>
-                <div class="stat-card completed fade-in" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'washers:completed_orders' %}" class="stat-card completed fade-in" data-aos="fade-up" data-aos-delay="300" style="text-decoration: none; color: inherit; cursor: pointer;">
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-number">{{ completed_today }}</div>
                     <div class="stat-label">Completed Today</div>
-                </div>
+                    <small style="display: block; margin-top: 10px; opacity: 0.7; font-size: 0.85rem;">
+                        <i class="fas fa-arrow-right"></i> Click to view details
+                    </small>
+                </a>
             </div>
 
             <!-- Current Orders Section -->

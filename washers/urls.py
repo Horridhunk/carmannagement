@@ -13,4 +13,5 @@ urlpatterns = [
     path('toggle-availability/', views.toggle_availability_view, name='toggle_availability'),
     path('profile/', views.washer_profile_view, name='profile'),
     path('debug-password/', views.debug_password_view, name='debug_password'),
+    path('completed-orders/', views.washer_completed_orders_view, name='completed_orders'),
 ]
