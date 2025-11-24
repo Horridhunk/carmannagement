@@ -98,7 +98,10 @@
                                 <p class="mb-0">Welcome back, {{ client_name }}!</p>
                             </div>
                         </div>
-                        <div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'clients:profile' %}" class="btn btn-outline-light">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
                             <a href="{% url 'clients:logout' %}" class="btn btn-outline-light">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </a>

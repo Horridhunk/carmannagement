@@ -904,3 +904,65 @@ def view_reviews_view(request):
     except Client.DoesNotExist:
         messages.error(request, 'Client account not found.')
         return redirect('clients:login')
+
+
+def client_profile_view(request):
+    """View and edit client profile"""
+    if 'client_id' not in request.session:
+        messages.error(request, 'Please log in to access your profile.')
+        return redirect('clients:login')
+    
+    client_id = request.session.get('client_id')
+    client_name = request.session.get('client_name', 'User')
+    
+    try:
+        client = Client.objects.get(client_id=client_id)
+        
+        # Get stats
+        total_orders = 0
+        total_cars = 0
+        
+        try:
+            total_orders = WashOrder.objects.filter(client=client).count()
+            total_cars = Vehicle.objects.filter(client=client).count()
+        except Exception:
+            pass
+        
+        if request.method == 'POST':
+            # Update profile
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            
+            if not first_name or not last_name:
+                messages.error(request, 'First name and last name are required.')
+                return render(request, 'clients/profile.html', {
+                    'client': client, 
+                    'client_name': client_name,
+                    'total_orders': total_orders,
+                    'total_cars': total_cars,
+                })
+            
+            client.first_name = first_name
+            client.last_name = last_name
+            client.phone = phone
+            client.save()
+            
+            # Update session
+            request.session['client_name'] = f"{first_name} {last_name}"
+            
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('clients:profile')
+        
+        context = {
+            'client': client,
+            'client_name': client_name,
+            'total_orders': total_orders,
+            'total_cars': total_cars,
+        }
+        
+        return render(request, 'clients/profile.html', context)
+        
+    except Client.DoesNotExist:
+        messages.error(request, 'Client account not found.')
+        return redirect('clients:login')

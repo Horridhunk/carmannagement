@@ -23,4 +23,5 @@ urlpatterns = [
     path('appointments/reschedule/<int:appointment_id>/', views.reschedule_appointment_view, name='reschedule_appointment'),
     path('reviews/add/<int:order_id>/', views.add_review_view, name='add_review'),
     path('reviews/', views.view_reviews_view, name='view_reviews'),
+    path('profile/', views.client_profile_view, name='profile'),
 ]
