@@ -279,3 +279,66 @@ footer a {
 	color: #3c97bf;
 	text-decoration: none;
 }
+
+
+/* Alert Messages */
+.alert {
+	width: 100%;
+	padding: 12px 15px;
+	margin: 10px 0;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.alert i {
+	font-size: 16px;
+}
+
+.alert-error,
+.alert-danger {
+	background: rgba(220, 53, 69, 0.1);
+	border: 2px solid #dc3545;
+	color: #721c24;
+}
+
+.alert-success {
+	background: rgba(40, 167, 69, 0.1);
+	border: 2px solid #28a745;
+	color: #155724;
+}
+
+.alert-warning {
+	background: rgba(255, 193, 7, 0.1);
+	border: 2px solid #ffc107;
+	color: #856404;
+}
+
+.alert-info {
+	background: rgba(167, 235, 242, 0.2);
+	border: 2px solid #a7ebf2;
+	color: #023859;
+}
+
+/* Error text for form fields */
+.error {
+	color: #dc3545;
+	font-size: 12px;
+	margin-top: 5px;
+	display: block;
+}

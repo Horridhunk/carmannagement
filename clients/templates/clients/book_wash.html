@@ -7,40 +7,159 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        :root {
+            --primary-blue: #023859;
+            --secondary-blue: #a7ebf2;
+            --light-blue: #e8f8fa;
+            --success-green: #28a745;
+            --dark-gray: #2c3e50;
+            --light-gray: #6c757d;
         }
+        
+        body {
+            background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         .form-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
+        
         .form-card {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(2, 56, 89, 0.2);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             max-width: 600px;
             width: 100%;
+            overflow: hidden;
         }
+        
         .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
             color: white;
-            border-radius: 15px 15px 0 0;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.1) 100%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        .form-header h2,
+        .form-header p {
+            position: relative;
+            z-index: 2;
+        }
+        
         .price-card {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 15px;
+            background: linear-gradient(145deg, #ffffff, #f8fbff);
+            border-radius: 15px;
+            padding: 20px 15px;
             margin-bottom: 15px;
-            border: 2px solid transparent;
+            border: 2px solid rgba(167, 235, 242, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(2, 56, 89, 0.1);
+        }
+        
+        .price-card:hover {
+            border-color: var(--secondary-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(2, 56, 89, 0.15);
+        }
+        
+        .price-card h6 {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+        
+        .price-card h4 {
+            color: var(--success-green);
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .form-control,
+        .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
             transition: all 0.3s ease;
         }
-        .price-card:hover {
-            border-color: #667eea;
+        
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(167, 235, 242, 0.25);
+            transform: translateY(-1px);
+        }
+        
+        .form-label {
+            color: var(--dark-gray);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(2, 56, 89, 0.3);
+        }
+        
+        .btn-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 56, 89, 0.4);
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+        }
+        
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.1);
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--light-gray);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .alert-info {
+            background: rgba(167, 235, 242, 0.2);
+            border: 1px solid var(--secondary-blue);
+            border-radius: 12px;
+            color: var(--primary-blue);
+        }
+        
+        .alert-info strong {
+            color: var(--primary-blue);
         }
     </style>
 </head>

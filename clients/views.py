@@ -20,25 +20,36 @@ def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Create client instance from form but don't save yet
-            client = form.save(commit=False)
-            # Hash the password and assign to password_hash field
-            client.password_hash = make_password(form.cleaned_data['password'])
-            client.save()
-            
-            # Automatically log in the user after account creation
-            request.session['client_id'] = client.client_id
-            request.session['client_email'] = client.email
-            request.session['client_name'] = f"{client.first_name} {client.last_name}"
-            
-            messages.success(request, f'Welcome to your dashboard, {client.first_name}! Your account has been created successfully.')
-            return redirect('clients:dashboard')
+            try:
+                # Create client instance from form but don't save yet
+                client = form.save(commit=False)
+                # Hash the password and assign to password_hash field
+                client.password_hash = make_password(form.cleaned_data['password'])
+                client.save()
+                
+                # Automatically log in the user after account creation
+                request.session['client_id'] = client.client_id
+                request.session['client_email'] = client.email
+                request.session['client_name'] = f"{client.first_name} {client.last_name}"
+                
+                messages.success(request, f'Welcome to your dashboard, {client.first_name}! Your account has been created successfully.')
+                return redirect('clients:dashboard')
+            except Exception as e:
+                messages.error(request, f'An error occurred while creating your account. Please try again.')
+                print(f"Signup error: {e}")  # For debugging
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Display specific form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == '__all__':
+                        messages.error(request, error)
+                    else:
+                        field_name = form.fields[field].label or field.replace('_', ' ').title()
+                        messages.error(request, f"{field_name}: {error}")
     else:
         form = SignupForm()
     
-    return render(request, 'clients/signup.html', {'form': form})
+    return render(request, 'clients/login.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -316,34 +327,45 @@ def book_wash_view(request):
                 # Try to assign an available washer
                 from washers.models import Washer
                 try:
+                    # Debug: Check all washers
+                    all_washers = Washer.objects.all()
+                    print(f"DEBUG: Total washers in system: {all_washers.count()}")
+                    for w in all_washers:
+                        print(f"  - {w.full_name}: is_available={w.is_available}, status={w.status}")
+                    
                     # Get washers who don't have any active orders
                     washers_with_active_orders = WashOrder.objects.filter(
                         status__in=['assigned', 'in_progress']
                     ).values_list('washer_id', flat=True)
+                    print(f"DEBUG: Washers with active orders: {list(washers_with_active_orders)}")
                     
-                    available_washer = Washer.objects.filter(
+                    available_washers = Washer.objects.filter(
                         is_available=True, 
                         status='active'
                     ).exclude(
                         washer_id__in=washers_with_active_orders
-                    ).first()
+                    )
+                    print(f"DEBUG: Available washers found: {available_washers.count()}")
+                    
+                    available_washer = available_washers.first()
                     
                     if available_washer:
                         wash_order.washer = available_washer
                         wash_order.status = 'assigned'
                         wash_order.assigned_at = timezone.now()
                         
-                        # Don't mark washer as unavailable - they can handle one order at a time
-                        # The washer selection logic already ensures they don't have active orders
-                        
+                        print(f"DEBUG: Assigned order to {available_washer.full_name}")
                         messages.success(request, f'Wash order booked successfully! Assigned to {available_washer.full_name}.')
                     else:
                         # No available washers - order will remain pending
                         wash_order.status = 'pending'
+                        print(f"DEBUG: No available washers - order set to pending")
                         messages.info(request, 'Wash order booked successfully! All washers are currently busy. We will assign one as soon as possible.')
                 except Exception as e:
                     # Log the error for debugging
-                    print(f"Error assigning washer: {e}")
+                    print(f"ERROR assigning washer: {e}")
+                    import traceback
+                    traceback.print_exc()
                     wash_order.status = 'pending'
                     messages.info(request, 'Wash order booked successfully! We will assign a washer soon.')
                 

@@ -231,8 +231,9 @@ def delete_washer_view(request, washer_id):
 @login_required(login_url='/carwash-admin/login/')
 @user_passes_test(is_admin, login_url='/carwash-admin/login/')
 def toggle_washer_status_view(request, washer_id):
-    """Toggle washer availability status"""
+    """Toggle washer availability status and auto-assign pending orders"""
     from washers.models import Washer
+    from clients.utils import auto_assign_pending_orders
     
     try:
         washer = Washer.objects.get(washer_id=washer_id)
@@ -241,6 +242,12 @@ def toggle_washer_status_view(request, washer_id):
         
         status = "available" if washer.is_available else "unavailable"
         messages.success(request, f'Washer {washer.first_name} {washer.last_name} is now {status}.')
+        
+        # If washer is now available, try to auto-assign pending orders
+        if washer.is_available:
+            assigned_count = auto_assign_pending_orders()
+            if assigned_count > 0:
+                messages.success(request, f'Automatically assigned {assigned_count} pending order(s) to available washers.')
     except Washer.DoesNotExist:
         messages.error(request, 'Washer not found.')
     
@@ -435,8 +442,9 @@ def assign_washer_view(request, order_id):
 @login_required(login_url='/carwash-admin/login/')
 @user_passes_test(is_admin, login_url='/carwash-admin/login/')
 def cancel_order_view(request, order_id):
-    """Cancel an order"""
+    """Cancel an order and auto-assign pending orders"""
     from clients.models import WashOrder
+    from clients.utils import auto_assign_pending_orders
     
     try:
         order = WashOrder.objects.get(order_id=order_id)
@@ -447,10 +455,14 @@ def cancel_order_view(request, order_id):
         elif order.status == 'completed':
             messages.error(request, f'Cannot cancel completed order #{order.order_id}.')
         else:
+            # Track if washer was freed up
+            washer_freed = False
+            
             # If order was assigned, make washer available again
             if order.washer and order.status in ['assigned', 'in_progress']:
                 order.washer.is_available = True
                 order.washer.save()
+                washer_freed = True
             
             # Get cancellation reason if provided
             cancellation_reason = request.POST.get('cancellation_reason', '')
@@ -464,6 +476,12 @@ def cancel_order_view(request, order_id):
                 messages.success(request, f'Order #{order.order_id} has been cancelled. Reason: {cancellation_reason}')
             else:
                 messages.success(request, f'Order #{order.order_id} has been cancelled.')
+            
+            # If a washer was freed up, try to auto-assign pending orders
+            if washer_freed:
+                assigned_count = auto_assign_pending_orders()
+                if assigned_count > 0:
+                    messages.success(request, f'Automatically assigned {assigned_count} pending order(s) to available washers.')
         
     except WashOrder.DoesNotExist:
         messages.error(request, 'Order not found.')
@@ -481,225 +499,291 @@ def cancel_order_view(request, order_id):
 @login_required(login_url='/carwash-admin/login/')
 @user_passes_test(is_admin, login_url='/carwash-admin/login/')
 def analytics_view(request):
-    """Analytics and reporting view"""
+    """Analytics and reporting view with robust error handling"""
     from clients.models import WashOrder, Client, Vehicle
     from washers.models import Washer
     from django.utils import timezone
-    from django.db.models import Count, Sum, Avg
+    from django.db.models import Count, Sum, Avg, Q
     from decimal import Decimal
+    import calendar
     
-    # Date ranges
+    # Get date range from request parameters or use defaults
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    # Default date ranges
     today = timezone.now().date()
     week_ago = today - timezone.timedelta(days=7)
     month_ago = today - timezone.timedelta(days=30)
-    year_ago = today - timezone.timedelta(days=365)
     
-    # Revenue analytics
-    revenue_today = WashOrder.objects.filter(
-        created_at__date=today, status='completed'
-    ).aggregate(total=Sum('price'))['total'] or 0
+    # Parse custom date range if provided
+    try:
+        if start_date_str and end_date_str:
+            from datetime import datetime
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        else:
+            start_date = month_ago
+            end_date = today
+    except ValueError:
+        # Fallback to default if date parsing fails
+        start_date = month_ago
+        end_date = today
     
-    revenue_week = WashOrder.objects.filter(
-        created_at__date__gte=week_ago, status='completed'
-    ).aggregate(total=Sum('price'))['total'] or 0
+    # Ensure start_date is not after end_date
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date
     
-    revenue_month = WashOrder.objects.filter(
-        created_at__date__gte=month_ago, status='completed'
-    ).aggregate(total=Sum('price'))['total'] or 0
-    
-    # Total orders and customers
-    total_orders = WashOrder.objects.filter(created_at__date__gte=month_ago).count()
-    completed_orders = WashOrder.objects.filter(
-        created_at__date__gte=month_ago, status='completed'
-    ).count()
-    
-    # New customers this month
-    new_customers = Client.objects.filter(
-        date_created__date__gte=month_ago
-    ).count()
-    
-    # Average order value
-    avg_order_value = WashOrder.objects.filter(
-        created_at__date__gte=month_ago, status='completed'
-    ).aggregate(avg=Avg('price'))['avg'] or 0
-    
-    # Completion rate
-    completion_rate = (completed_orders / total_orders * 100) if total_orders > 0 else 0
-    
-    # Average rating (placeholder - you can implement actual ratings later)
-    avg_rating = 4.8
-    
-    # Peak day analysis
-    from django.db.models import Q
-    import calendar
-    
-    # Get orders by day of week for the past month
-    orders_by_weekday = {}
-    for i in range(7):  # 0=Monday, 6=Sunday
-        day_orders = WashOrder.objects.filter(
-            created_at__date__gte=month_ago,
-            created_at__week_day=i+2  # Django uses 1=Sunday, 2=Monday
-        ).count()
-        orders_by_weekday[calendar.day_name[i]] = day_orders
-    
-    peak_day = max(orders_by_weekday, key=orders_by_weekday.get) if orders_by_weekday else "Saturday"
-    peak_day_orders = orders_by_weekday.get(peak_day, 25)
-    
-    # Repeat customers analysis
-    repeat_customers_count = Client.objects.annotate(
-        order_count=Count('washorder')
-    ).filter(order_count__gt=1).count()
-    
-    total_customers = Client.objects.count()
-    repeat_customers_percentage = (repeat_customers_count / total_customers * 100) if total_customers > 0 else 0
-    
-    # Service efficiency
-    avg_service_time = 45  # Placeholder - you can calculate actual service time
-    
-    # Cancellation rate
-    cancelled_orders = WashOrder.objects.filter(
-        created_at__date__gte=month_ago, status='cancelled'
-    ).count()
-    cancellation_rate = (cancelled_orders / total_orders * 100) if total_orders > 0 else 0
-    
-    # Revenue growth (compare with previous month)
-    prev_month_start = month_ago - timezone.timedelta(days=30)
-    prev_month_revenue = WashOrder.objects.filter(
-        created_at__date__gte=prev_month_start,
-        created_at__date__lt=month_ago,
-        status='completed'
-    ).aggregate(total=Sum('price'))['total'] or 1
-    
-    revenue_growth = ((revenue_month - prev_month_revenue) / prev_month_revenue * 100) if prev_month_revenue > 0 else 0
-    
-    # Order analytics
-    orders_by_status = WashOrder.objects.values('status').annotate(count=Count('status'))
-    orders_by_type = WashOrder.objects.values('wash_type').annotate(count=Count('wash_type'))
-    
-    # Top performing washers
-    top_washers = WashOrder.objects.filter(
-        status='completed',
-        created_at__date__gte=month_ago
-    ).values(
-        'washer__first_name', 'washer__last_name'
-    ).annotate(
-        completed_orders=Count('order_id'),
-        total_revenue=Sum('price')
-    ).order_by('-completed_orders')[:5]
-    
-    # Recent activity
-    recent_orders = WashOrder.objects.select_related(
-        'client', 'vehicle', 'washer'
-    ).order_by('-created_at')[:10]
-    
-    # Revenue trend data for the past 30 days
-    revenue_trend_data = []
-    revenue_trend_labels = []
-    
-    for i in range(29, -1, -1):  # Last 30 days
-        date = today - timezone.timedelta(days=i)
-        daily_revenue = WashOrder.objects.filter(
-            created_at__date=date,
+    # Revenue analytics with safe defaults
+    try:
+        revenue_today = WashOrder.objects.filter(
+            created_at__date=today, status='completed'
+        ).aggregate(total=Sum('price'))['total'] or Decimal('0.00')
+        
+        revenue_week = WashOrder.objects.filter(
+            created_at__date__gte=week_ago, status='completed'
+        ).aggregate(total=Sum('price'))['total'] or Decimal('0.00')
+        
+        revenue_period = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
             status='completed'
-        ).aggregate(total=Sum('price'))['total'] or 0
+        ).aggregate(total=Sum('price'))['total'] or Decimal('0.00')
+    except Exception as e:
+        print(f"Revenue calculation error: {e}")
+        revenue_today = revenue_week = revenue_period = Decimal('0.00')
+    
+    # Order analytics with safe defaults
+    try:
+        total_orders = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).count()
         
-        revenue_trend_data.append(float(daily_revenue))
-        revenue_trend_labels.append(date.strftime('%m/%d'))
+        completed_orders = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
+            status='completed'
+        ).count()
+        
+        cancelled_orders = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
+            status='cancelled'
+        ).count()
+    except Exception as e:
+        print(f"Order count error: {e}")
+        total_orders = completed_orders = cancelled_orders = 0
     
-    # Service distribution data for pie chart
-    service_distribution = WashOrder.objects.filter(
-        created_at__date__gte=month_ago
-    ).values('wash_type').annotate(
-        count=Count('wash_type'),
-        revenue=Sum('price')
-    ).order_by('-count')
+    # Customer analytics with safe defaults
+    try:
+        new_customers = Client.objects.filter(
+            date_created__date__gte=start_date,
+            date_created__date__lte=end_date
+        ).count()
+        
+        total_customers = Client.objects.count()
+        
+        # Repeat customers analysis
+        repeat_customers_count = Client.objects.annotate(
+            order_count=Count('washorder')
+        ).filter(order_count__gt=1).count()
+        
+        repeat_customers_percentage = (
+            (repeat_customers_count / total_customers * 100) 
+            if total_customers > 0 else 0
+        )
+    except Exception as e:
+        print(f"Customer analytics error: {e}")
+        new_customers = total_customers = repeat_customers_count = 0
+        repeat_customers_percentage = 0
     
-    # Prepare data for pie chart
-    service_labels = []
-    service_counts = []
-    service_colors = [
-        '#023859',  # Primary blue
-        '#a7ebf2',  # Secondary blue
-        '#28a745',  # Success green
-        '#ffc107',  # Warning yellow
-        '#dc3545',  # Danger red
-        '#17a2b8',  # Info cyan
-        '#6f42c1',  # Purple
-        '#fd7e14',  # Orange
-    ]
+    # Calculate rates with safe division
+    try:
+        avg_order_value = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
+            status='completed'
+        ).aggregate(avg=Avg('price'))['avg'] or Decimal('0.00')
+        
+        completion_rate = (
+            (completed_orders / total_orders * 100) 
+            if total_orders > 0 else 100.0
+        )
+        
+        cancellation_rate = (
+            (cancelled_orders / total_orders * 100) 
+            if total_orders > 0 else 0.0
+        )
+    except Exception as e:
+        print(f"Rate calculation error: {e}")
+        avg_order_value = Decimal('0.00')
+        completion_rate = cancellation_rate = 0.0
     
-    for i, service in enumerate(service_distribution):
-        service_labels.append(service['wash_type'].replace('_', ' ').title())
-        service_counts.append(service['count'])
+    # Peak day analysis with fallbacks
+    try:
+        orders_by_weekday = {}
+        for i in range(7):  # 0=Monday, 6=Sunday
+            # Django week_day: 1=Sunday, 2=Monday, ..., 7=Saturday
+            django_day_num = (i + 2) % 7
+            if django_day_num == 0:
+                django_day_num = 7
+                
+            day_orders = WashOrder.objects.filter(
+                created_at__date__gte=start_date,
+                created_at__date__lte=end_date,
+                created_at__week_day=django_day_num
+            ).count()
+            orders_by_weekday[calendar.day_name[i]] = day_orders
+        
+        if any(orders_by_weekday.values()):
+            peak_day = max(orders_by_weekday, key=orders_by_weekday.get)
+            peak_day_orders = orders_by_weekday[peak_day]
+        else:
+            peak_day = "No data"
+            peak_day_orders = 0
+    except Exception as e:
+        print(f"Peak day analysis error: {e}")
+        peak_day = "Saturday"
+        peak_day_orders = 0
+        orders_by_weekday = {day: 0 for day in calendar.day_name}
     
-    # If no services, add placeholder data
-    if not service_labels:
-        service_labels = ['Basic Wash', 'Premium Wash', 'Deluxe Wash']
-        service_counts = [5, 3, 2]
+    # Revenue growth calculation with safe division
+    try:
+        # Calculate previous period for comparison
+        period_length = (end_date - start_date).days
+        prev_start = start_date - timezone.timedelta(days=period_length)
+        prev_end = start_date - timezone.timedelta(days=1)
+        
+        prev_period_revenue = WashOrder.objects.filter(
+            created_at__date__gte=prev_start,
+            created_at__date__lte=prev_end,
+            status='completed'
+        ).aggregate(total=Sum('price'))['total'] or Decimal('0.00')
+        
+        if prev_period_revenue > 0:
+            revenue_growth = float((revenue_period - prev_period_revenue) / prev_period_revenue * 100)
+        else:
+            revenue_growth = 100.0 if revenue_period > 0 else 0.0
+    except Exception as e:
+        print(f"Revenue growth calculation error: {e}")
+        revenue_growth = 0.0
     
-    # Daily orders overview - orders by day of the week
-    import calendar
-    daily_orders_data = []
-    daily_orders_labels = []
-    
-    # Get orders for each day of the week (last 30 days)
-    for day_num in range(7):  # 0=Monday, 6=Sunday
-        day_name = calendar.day_name[day_num]
-        # Django week_day: 1=Sunday, 2=Monday, ..., 7=Saturday
-        django_day_num = (day_num + 2) % 7
-        if django_day_num == 0:
-            django_day_num = 7
+    # Chart data preparation with fallbacks
+    try:
+        # Revenue trend data
+        revenue_trend_data = []
+        revenue_trend_labels = []
+        
+        current_date = start_date
+        while current_date <= end_date:
+            daily_revenue = WashOrder.objects.filter(
+                created_at__date=current_date,
+                status='completed'
+            ).aggregate(total=Sum('price'))['total'] or Decimal('0.00')
             
-        day_orders = WashOrder.objects.filter(
-            created_at__date__gte=month_ago,
-            created_at__week_day=django_day_num
-        ).count()
+            revenue_trend_data.append(float(daily_revenue))
+            revenue_trend_labels.append(current_date.strftime('%m/%d'))
+            current_date += timezone.timedelta(days=1)
         
-        daily_orders_data.append(day_orders)
-        daily_orders_labels.append(day_name)
+        # Limit to last 30 days for readability
+        if len(revenue_trend_data) > 30:
+            revenue_trend_data = revenue_trend_data[-30:]
+            revenue_trend_labels = revenue_trend_labels[-30:]
+    except Exception as e:
+        print(f"Revenue trend data error: {e}")
+        revenue_trend_data = [0] * 30
+        revenue_trend_labels = [(today - timezone.timedelta(days=i)).strftime('%m/%d') for i in range(29, -1, -1)]
     
-    # Order status distribution for additional insights
-    status_distribution = []
-    status_labels = []
-    status_colors = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1']
-    
-    for status_choice in WashOrder.STATUS_CHOICES:
-        status_code = status_choice[0]
-        status_name = status_choice[1]
-        count = WashOrder.objects.filter(
-            created_at__date__gte=month_ago,
-            status=status_code
-        ).count()
+    # Service distribution with fallbacks
+    try:
+        service_distribution = WashOrder.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).values('wash_type').annotate(
+            count=Count('wash_type')
+        ).order_by('-count')
         
-        if count > 0:  # Only include statuses that have orders
-            status_distribution.append(count)
-            status_labels.append(status_name)
+        service_labels = []
+        service_counts = []
+        
+        for service in service_distribution:
+            service_labels.append(service['wash_type'].replace('_', ' ').title())
+            service_counts.append(service['count'])
+        
+        # Fallback data if no services
+        if not service_labels:
+            service_labels = ['No Data Available']
+            service_counts = [1]
+    except Exception as e:
+        print(f"Service distribution error: {e}")
+        service_labels = ['Basic Wash']
+        service_counts = [1]
     
-    # Create analytics object for template
+    # Daily orders data with safe handling
+    try:
+        daily_orders_data = []
+        daily_orders_labels = []
+        
+        for day_num in range(7):  # 0=Monday, 6=Sunday
+            day_name = calendar.day_name[day_num]
+            day_orders = orders_by_weekday.get(day_name, 0)
+            
+            daily_orders_data.append(day_orders)
+            daily_orders_labels.append(day_name)
+    except Exception as e:
+        print(f"Daily orders data error: {e}")
+        daily_orders_data = [0] * 7
+        daily_orders_labels = list(calendar.day_name)
+    
+    # Top washers with safe handling
+    try:
+        top_washers = WashOrder.objects.filter(
+            status='completed',
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
+            washer__isnull=False
+        ).values(
+            'washer__first_name', 'washer__last_name'
+        ).annotate(
+            completed_orders=Count('order_id'),
+            total_revenue=Sum('price')
+        ).order_by('-completed_orders')[:5]
+    except Exception as e:
+        print(f"Top washers error: {e}")
+        top_washers = []
+    
+    # Create analytics object with safe values
     analytics = {
-        'total_revenue': float(revenue_month),
+        'total_revenue': float(revenue_period),
         'total_orders': total_orders,
         'new_customers': new_customers,
-        'avg_order_value': float(avg_order_value) if avg_order_value else 0,
+        'avg_order_value': float(avg_order_value),
         'completion_rate': round(completion_rate, 1),
-        'avg_rating': avg_rating,
+        'avg_rating': 4.8,  # Placeholder until rating system is implemented
         'peak_day_orders': peak_day_orders,
+        'peak_day': peak_day,
         'repeat_customers': round(repeat_customers_percentage, 1),
-        'avg_service_time': avg_service_time,
+        'avg_service_time': 45,  # Placeholder
         'cancellation_rate': round(cancellation_rate, 1),
         'revenue_growth': round(revenue_growth, 1),
     }
     
+    # Color schemes
+    service_colors = [
+        '#023859', '#a7ebf2', '#28a745', '#ffc107', '#dc3545', 
+        '#17a2b8', '#6f42c1', '#fd7e14'
+    ]
+    
     context = {
         'title': 'Analytics & Reports',
         'analytics': analytics,
-        'revenue_today': revenue_today,
-        'revenue_week': revenue_week,
-        'revenue_month': revenue_month,
-        'orders_by_status': orders_by_status,
-        'orders_by_type': orders_by_type,
+        'revenue_today': float(revenue_today),
+        'revenue_week': float(revenue_week),
+        'revenue_period': float(revenue_period),
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
         'top_washers': top_washers,
-        'recent_orders': recent_orders,
         'revenue_trend_data': revenue_trend_data,
         'revenue_trend_labels': revenue_trend_labels,
         'service_labels': service_labels,
@@ -707,9 +791,6 @@ def analytics_view(request):
         'service_colors': service_colors[:len(service_labels)],
         'daily_orders_data': daily_orders_data,
         'daily_orders_labels': daily_orders_labels,
-        'status_distribution': status_distribution,
-        'status_labels': status_labels,
-        'status_colors': status_colors[:len(status_labels)],
     }
     return render(request, 'admin/analytics.html', context)
 
@@ -763,3 +844,27 @@ def cancel_appointment_admin_view(request, appointment_id):
             messages.error(request, f'Error cancelling appointment: {str(e)}')
     
     return redirect('carwash_admin:manage_appointments')
+
+
+@login_required(login_url='/carwash-admin/login/')
+@user_passes_test(is_admin, login_url='/carwash-admin/login/')
+def auto_assign_orders_view(request):
+    """Manually trigger auto-assignment of pending orders"""
+    from clients.utils import auto_assign_pending_orders
+    
+    try:
+        assigned_count = auto_assign_pending_orders()
+        
+        if assigned_count > 0:
+            messages.success(request, f'Successfully assigned {assigned_count} pending order(s) to available washers.')
+        else:
+            messages.info(request, 'No pending orders to assign or no available washers.')
+    except Exception as e:
+        messages.error(request, f'Error auto-assigning orders: {str(e)}')
+    
+    # Redirect back to the referring page or dashboard
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'orders' in referer:
+        return redirect('carwash_admin:manage_orders')
+    else:
+        return redirect('carwash_admin:dashboard')

@@ -1,7 +1,11 @@
 # Car Wash Management System - Database Schema
 
 ## Overview
-This document outlines the complete database schema for the Car Wash Management System built with Django.
+This document outlines the complete database schema for the Car Wash Management System built with Django. This schema supports client registration, vehicle management, appointment scheduling, order processing, and staff management capabilities.
+
+**Last Updated**: November 2024  
+**Django Version**: 4.x  
+**Database**: SQLite (Development) / PostgreSQL (Production Ready)
 
 ---
 
@@ -117,10 +121,16 @@ This document outlines the complete database schema for the Car Wash Management 
 - Many-to-One with `washers`
 - One-to-One with `appointments` (optional)
 
+**Properties**:
+- `clean()` - Validates washer doesn't have multiple active orders
+- Custom save method runs validation
+
 **Business Rules**:
 - A washer can only have one active order at a time
 - Orders progress through status workflow
 - Price is set based on wash type
+- Validation prevents assigning multiple active orders to same washer
+- Orders can be cancelled at any stage before completion
 
 ---
 
@@ -144,10 +154,17 @@ This document outlines the complete database schema for the Car Wash Management 
 **Relationships**:
 - One-to-Many with `appointments`
 
+**Properties**:
+- `is_past` - Checks if slot is in the past
+- `is_available` - Checks if slot has capacity and is active
+- `available_spots` - Returns number of available spots
+- `booking_count` - Returns current booking count
+
 **Business Rules**:
 - Past time slots are automatically unavailable
 - Capacity determines how many appointments can be booked
 - Slots can be deactivated by admin
+- Duplicate slots (same date/time) are prevented
 
 ---
 
@@ -176,10 +193,17 @@ This document outlines the complete database schema for the Car Wash Management 
 - Many-to-One with `time_slots`
 - One-to-One with `wash_orders`
 
+**Properties**:
+- `appointment_datetime` - Full datetime of appointment
+- `cancel_appointment()` - Method to cancel appointment and associated order
+- `create_wash_order()` - Method to create wash order from appointment
+
 **Business Rules**:
-- Appointments automatically create wash orders
+- Appointments automatically create wash orders when processed
 - Cancelled appointments free up time slot capacity
 - Past appointments cannot be modified
+- Cancellation updates both appointment and associated wash order
+- Wash order prices are set based on wash type (Basic: $15, Premium: $25, Deluxe: $35)
 
 ---
 
@@ -206,6 +230,12 @@ This document outlines the complete database schema for the Car Wash Management 
 - `inactive` - Inactive Employee
 - `on_break` - Currently on Break
 
+**Properties**:
+- `full_name` - Returns formatted full name
+- `has_active_orders` - Checks if washer has active orders
+- `active_orders_count` - Returns count of active orders
+- `is_truly_available` - Checks availability and no active orders
+
 **Relationships**:
 - One-to-Many with `wash_orders`
 
@@ -213,12 +243,39 @@ This document outlines the complete database schema for the Car Wash Management 
 - Washers can only work on one order at a time
 - Availability affects order assignment
 - Phone numbers must be unique
+- Email addresses must be unique
 
 ---
 
-## 3. ADMIN APP
+## 3. AUTHENTICATION SYSTEM
 
-### 3.1 SystemStats (Helper Class)
+### 3.1 Combined Authentication Page
+**Purpose**: Unified login/signup interface for washers
+
+**Features**:
+- Tabbed interface for login and signup
+- Real-time form validation
+- Phone number formatting and validation
+- Password confirmation matching
+- Responsive design with animations
+
+**URL Structure**:
+- Combined Auth: `/washers/auth/`
+- Individual Login: `/washers/login/`
+- Individual Signup: `/washers/signup/`
+- Dashboard: `/washers/dashboard/`
+
+**Validation Rules**:
+- Phone numbers must start with 01 or 07 and be exactly 10 digits
+- Email addresses must be unique
+- Password confirmation must match
+- Real-time validation feedback
+
+---
+
+## 4. ADMIN APP
+
+### 4.1 SystemStats (Helper Class)
 **Purpose**: Provides dashboard statistics and analytics
 
 **Note**: This is not a database table but a helper class that aggregates data from other tables for admin dashboard display.
@@ -233,7 +290,7 @@ This document outlines the complete database schema for the Car Wash Management 
 
 ---
 
-## 4. DATABASE RELATIONSHIPS DIAGRAM
+## 5. DATABASE RELATIONSHIPS DIAGRAM
 
 ```
 clients (1) ──────── (*) vehicles
@@ -264,34 +321,34 @@ password_reset_tokens (*) ──── (1) clients
 
 ---
 
-## 5. KEY BUSINESS RULES
+## 6. KEY BUSINESS RULES
 
-### 5.1 Order Management
+### 6.1 Order Management
 - Orders flow through status: pending → assigned → in_progress → completed
 - Washers can only handle one active order at a time
 - Orders can be cancelled at any stage before completion
 
-### 5.2 Appointment System
+### 6.2 Appointment System
 - Appointments automatically create corresponding wash orders
 - Time slots have capacity limits (default: 3 appointments)
 - Past appointments and time slots are read-only
 - Cancelling appointments frees up time slot capacity
 
-### 5.3 User Management
+### 6.3 User Management
 - Clients and washers have separate authentication systems
 - Email addresses must be unique within each user type
 - Password reset tokens expire after 1 hour
 
-### 5.4 Vehicle Management
+### 6.4 Vehicle Management
 - License plates must be unique across all vehicles
 - Clients can own multiple vehicles
 - Vehicle information is preserved even if orders are deleted
 
 ---
 
-## 6. INDEXES AND PERFORMANCE
+## 7. INDEXES AND PERFORMANCE
 
-### 6.1 Recommended Indexes
+### 7.1 Recommended Indexes
 - `clients.email` (unique index)
 - `washers.email` (unique index)
 - `vehicles.license_plate` (unique index)
@@ -300,7 +357,7 @@ password_reset_tokens (*) ──── (1) clients
 - `time_slots.date, time_slots.start_time` (composite unique)
 - `appointments.time_slot_id, appointments.is_cancelled` (composite)
 
-### 6.2 Query Optimization
+### 7.2 Query Optimization
 - Use select_related() for foreign key relationships
 - Use prefetch_related() for reverse foreign key relationships
 - Filter by status and date ranges for better performance
@@ -308,14 +365,14 @@ password_reset_tokens (*) ──── (1) clients
 
 ---
 
-## 7. DATA INTEGRITY CONSTRAINTS
+## 8. DATA INTEGRITY CONSTRAINTS
 
-### 7.1 Foreign Key Constraints
+### 8.1 Foreign Key Constraints
 - `CASCADE`: Delete related records when parent is deleted
 - `SET_NULL`: Set foreign key to NULL when referenced record is deleted
 - Prevents orphaned records and maintains referential integrity
 
-### 7.2 Unique Constraints
+### 8.2 Unique Constraints
 - Email addresses (clients and washers)
 - License plates (vehicles)
 - Time slots (date + start_time combination)

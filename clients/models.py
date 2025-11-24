@@ -130,48 +130,6 @@ class WashOrder(models.Model):
 
 
 class TimeSlot(models.Model):
-    """Available time slots for booking car wash services"""
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    max_capacity = models.IntegerField(default=2)  # How many cars can be washed simultaneously
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        db_table = 'time_slots'
-        unique_together = ['date', 'start_time']  # Prevent duplicate slots
-        ordering = ['date', 'start_time']
-    
-    def __str__(self):
-        return f"{self.date} {self.start_time}-{self.end_time}"
-    
-    @property
-    def current_bookings(self):
-        """Get current number of bookings for this slot"""
-        return self.appointments.filter(is_cancelled=False).count()
-    
-    @property
-    def available_spots(self):
-        """Get number of available spots"""
-        return self.max_capacity - self.current_bookings
-    
-    @property
-    def is_available(self):
-        """Check if slot has available spots"""
-        return self.is_active and self.available_spots > 0
-    
-    @property
-    def is_past(self):
-        """Check if this time slot is in the past"""
-        from django.utils import timezone
-        now = timezone.now()
-        slot_datetime = timezone.datetime.combine(self.date, self.start_time)
-        slot_datetime = timezone.make_aware(slot_datetime)
-        return slot_datetime < now
-
-
-class TimeSlot(models.Model):
     """Available time slots for appointments"""
     date = models.DateField()
     start_time = models.TimeField()

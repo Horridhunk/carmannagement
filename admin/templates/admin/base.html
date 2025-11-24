@@ -10,7 +10,7 @@
     {% load static %}
     <link href="{% static 'admin/css/admin.css' %}?v=20251102k" rel="stylesheet">
     <link href="{% static 'admin/css/washers.css' %}?v=20251102k" rel="stylesheet">
-    
+    {% block extra_css %}{% endblock %}
 
 </head>
 <body>

@@ -22,6 +22,17 @@ class SignupForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'placeholder': 'Phone Number (optional)'}),
         }
 
+    def clean_email(self):
+        """Check if email already exists"""
+        email = self.cleaned_data.get('email')
+        if email:
+            # Check if email already exists (case-insensitive)
+            if Client.objects.filter(email__iexact=email).exists():
+                raise forms.ValidationError(
+                    "An account with this email already exists. Please login or use a different email."
+                )
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")

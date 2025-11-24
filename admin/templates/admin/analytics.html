@@ -1,6 +1,11 @@
 {% extends 'admin/base.html' %}
+{% load static %}
 
 {% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'admin/css/analytics.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 
@@ -36,42 +41,44 @@
 
         <!-- Date Filter Section -->
         <div class="date-filter-section">
-            <div class="date-filter-row">
-                <div class="filter-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" class="filter-input" value="{% now 'Y-m-01' %}">
+            <form method="GET" id="analyticsForm">
+                <div class="date-filter-row">
+                    <div class="filter-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" name="start_date" class="filter-input" value="{{ start_date }}">
+                    </div>
+                    <div class="filter-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" name="end_date" class="filter-input" value="{{ end_date }}">
+                    </div>
+                    <div class="filter-group">
+                        <label for="period">Quick Select</label>
+                        <select id="period" class="filter-input">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="filter-btn">
+                            <i class="fas fa-sync me-2"></i>Update
+                        </button>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <label for="endDate">End Date</label>
-                    <input type="date" id="endDate" class="filter-input" value="{% now 'Y-m-d' %}">
-                </div>
-                <div class="filter-group">
-                    <label for="period">Quick Select</label>
-                    <select id="period" class="filter-input">
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month" selected>This Month</option>
-                        <option value="quarter">This Quarter</option>
-                        <option value="year">This Year</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>&nbsp;</label>
-                    <button class="filter-btn" onclick="updateAnalytics()">
-                        <i class="fas fa-sync me-2"></i>Update
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Key Metrics Section -->
         <div class="metrics-section">
             <div class="metric-card fade-in">
                 <i class="fas fa-dollar-sign metric-icon"></i>
-                <div class="metric-number">${{ analytics.total_revenue|default:0 }}</div>
+                <div class="metric-number">${{ analytics.total_revenue|floatformat:2|default:0 }}</div>
                 <div class="metric-label">Total Revenue</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>+12.5%
+                <div class="metric-change {% if analytics.revenue_growth >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="fas fa-arrow-{% if analytics.revenue_growth >= 0 %}up{% else %}down{% endif %} me-1"></i>{{ analytics.revenue_growth|default:0 }}%
                 </div>
             </div>
             <div class="metric-card fade-in">
@@ -79,7 +86,7 @@
                 <div class="metric-number">{{ analytics.total_orders|default:0 }}</div>
                 <div class="metric-label">Total Orders</div>
                 <div class="metric-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>+8.3%
+                    <i class="fas fa-chart-line me-1"></i>Period Total
                 </div>
             </div>
             <div class="metric-card fade-in">
@@ -87,23 +94,23 @@
                 <div class="metric-number">{{ analytics.new_customers|default:0 }}</div>
                 <div class="metric-label">New Customers</div>
                 <div class="metric-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>+15.7%
+                    <i class="fas fa-user-plus me-1"></i>This Period
                 </div>
             </div>
             <div class="metric-card fade-in">
                 <i class="fas fa-chart-bar metric-icon"></i>
-                <div class="metric-number">${{ analytics.avg_order_value|default:0 }}</div>
+                <div class="metric-number">${{ analytics.avg_order_value|floatformat:2|default:0 }}</div>
                 <div class="metric-label">Avg Order Value</div>
-                <div class="metric-change negative">
-                    <i class="fas fa-arrow-down me-1"></i>-2.1%
+                <div class="metric-change positive">
+                    <i class="fas fa-calculator me-1"></i>Per Order
                 </div>
             </div>
             <div class="metric-card fade-in">
                 <i class="fas fa-percentage metric-icon"></i>
-                <div class="metric-number">{{ analytics.completion_rate|default:95 }}%</div>
+                <div class="metric-number">{{ analytics.completion_rate|default:100 }}%</div>
                 <div class="metric-label">Completion Rate</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>+3.2%
+                <div class="metric-change {% if analytics.completion_rate >= 95 %}positive{% else %}negative{% endif %}">
+                    <i class="fas fa-check-circle me-1"></i>Success Rate
                 </div>
             </div>
             <div class="metric-card fade-in">
@@ -111,7 +118,7 @@
                 <div class="metric-number">{{ analytics.avg_rating|default:4.8 }}</div>
                 <div class="metric-label">Average Rating</div>
                 <div class="metric-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>+0.3
+                    <i class="fas fa-thumbs-up me-1"></i>Out of 5.0
                 </div>
             </div>
         </div>
@@ -163,8 +170,8 @@
                         Peak Performance
                     </div>
                     <div class="insight-content">
-                        Your busiest day is <span class="insight-highlight">Saturday</span> with an average of 
-                        <span class="insight-highlight">{{ analytics.peak_day_orders|default:25 }} orders</span>. 
+                        Your busiest day is <span class="insight-highlight">{{ analytics.peak_day|default:"No data" }}</span> with 
+                        <span class="insight-highlight">{{ analytics.peak_day_orders|default:0 }} orders</span>. 
                         Consider scheduling more staff during weekend hours to handle increased demand.
                     </div>
                 </div>
@@ -367,44 +374,23 @@ function initCharts() {
     }
 }
 
-function updateAnalytics() {
+// Form submission handler
+document.getElementById('analyticsForm').addEventListener('submit', function(e) {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     
     if (!startDate || !endDate) {
+        e.preventDefault();
         alert('Please select both start and end dates.');
         return;
     }
     
     if (new Date(startDate) > new Date(endDate)) {
+        e.preventDefault();
         alert('Start date cannot be later than end date.');
         return;
     }
-    
-    // Show loading state
-    const button = event.target;
-    const originalText = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
-    button.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Show success message
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-success position-fixed';
-        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        alertDiv.innerHTML = `
-            <i class="fas fa-check-circle me-2"></i>
-            Analytics updated for ${startDate} to ${endDate}
-        `;
-        document.body.appendChild(alertDiv);
-        setTimeout(() => alertDiv.remove(), 3000);
-        
-        // Reset button
-        button.innerHTML = originalText;
-        button.disabled = false;
-    }, 2000);
-}
+});
 
 function generateReport() {
     // Create a simple report window
