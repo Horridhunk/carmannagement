@@ -188,7 +188,7 @@
                     </div>
 
                     <!-- Recent Orders -->
-                    <div class="row">
+                    <div class="row mb-4">
                         <div class="col-12">
                             <h4><i class="fas fa-list"></i> Recent Orders</h4>
                             {% if recent_orders %}
@@ -202,13 +202,14 @@
                                                 <th>Status</th>
                                                 <th>Date</th>
                                                 <th>Price</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for order in recent_orders %}
                                             <tr>
                                                 <td>#{{ order.order_id }}</td>
-                                                <td>{{ order.car }}</td>
+                                                <td>{{ order.vehicle }}</td>
                                                 <td>{{ order.get_wash_type_display }}</td>
                                                 <td>
                                                     <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'in_progress' %}warning{% elif order.status == 'pending' %}info{% else %}secondary{% endif %}">
@@ -217,6 +218,13 @@
                                                 </td>
                                                 <td>{{ order.created_at|date:"M d, Y" }}</td>
                                                 <td>${{ order.price }}</td>
+                                                <td>
+                                                    {% if order.status == 'completed' %}
+                                                        <a href="{% url 'clients:add_review' order.order_id %}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-star"></i> Review
+                                                        </a>
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -227,6 +235,49 @@
                                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                     <p class="text-muted">No orders yet. Book your first car wash!</p>
                                     <a href="{% url 'clients:book_wash' %}" class="btn btn-primary">Book Your First Wash</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- My Reviews Section -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h4><i class="fas fa-comments"></i> My Reviews</h4>
+                            {% if client_reviews %}
+                                <div class="row">
+                                    {% for review in client_reviews %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="action-card">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">Order #{{ review.wash_order.order_id }}</h6>
+                                                    <small class="text-muted">{{ review.wash_order.vehicle }}</small>
+                                                </div>
+                                                <div class="text-warning">
+                                                    {% for i in "x"|rjust:"5" %}
+                                                        {% if forloop.counter <= review.rating %}
+                                                            <i class="fas fa-star"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {% if review.comment %}
+                                                <p class="mb-2">{{ review.comment }}</p>
+                                            {% endif %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar"></i> {{ review.created_at|date:"M d, Y" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No reviews yet. Complete an order and share your experience!</p>
                                 </div>
                             {% endif %}
                         </div>

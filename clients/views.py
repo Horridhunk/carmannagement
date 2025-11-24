@@ -101,6 +101,7 @@ def dashboard_view(request):
     pending_orders = 0
     total_spent = 0
     recent_orders = []
+    client_reviews = []
     
     try:
         # Get client object
@@ -123,6 +124,13 @@ def dashboard_view(request):
             total_spent = sum(order.price for order in completed_orders)
         except Exception:
             pass
+        
+        # Get client reviews
+        try:
+            from .models import Review
+            client_reviews = Review.objects.filter(client=client).select_related('wash_order', 'washer').order_by('-created_at')[:3]
+        except Exception:
+            pass
             
     except Client.DoesNotExist:
         messages.error(request, 'Client account not found.')
@@ -137,6 +145,7 @@ def dashboard_view(request):
         'pending_orders': pending_orders,
         'total_spent': total_spent,
         'recent_orders': recent_orders,
+        'client_reviews': client_reviews,
     }
     
     return render(request, 'clients/dashboard.html', context)
@@ -804,6 +813,93 @@ def reschedule_appointment_view(request, appointment_id):
         # In a full implementation, you'd create a reschedule form
         messages.info(request, 'Please schedule a new appointment. The old one will be cancelled.')
         return redirect('clients:schedule_appointment')
+        
+    except Client.DoesNotExist:
+        messages.error(request, 'Client account not found.')
+        return redirect('clients:login')
+
+
+def add_review_view(request, order_id):
+    """Add a review for a completed wash order"""
+    if 'client_id' not in request.session:
+        messages.error(request, 'Please log in to add a review.')
+        return redirect('clients:login')
+    
+    client_id = request.session.get('client_id')
+    
+    try:
+        client = Client.objects.get(client_id=client_id)
+        order = WashOrder.objects.get(order_id=order_id, client=client, status='completed')
+        
+        # Check if review already exists
+        if hasattr(order, 'review') and order.review:
+            messages.info(request, 'You have already reviewed this order.')
+            return redirect('clients:dashboard')
+        
+        if request.method == 'POST':
+            from .models import Review
+            
+            rating = request.POST.get('rating')
+            comment = request.POST.get('comment', '')
+            
+            if not rating:
+                messages.error(request, 'Please select a rating.')
+                return render(request, 'clients/add_review.html', {'order': order})
+            
+            try:
+                rating = int(rating)
+                if rating < 1 or rating > 5:
+                    messages.error(request, 'Rating must be between 1 and 5.')
+                    return render(request, 'clients/add_review.html', {'order': order})
+                
+                # Create review
+                review = Review.objects.create(
+                    client=client,
+                    wash_order=order,
+                    washer=order.washer,
+                    rating=rating,
+                    comment=comment,
+                    job_id=order.order_id  # Use order_id as job_id
+                )
+                
+                messages.success(request, 'Thank you for your review!')
+                return redirect('clients:dashboard')
+                
+            except Exception as e:
+                messages.error(request, f'Error saving review: {str(e)}')
+                return render(request, 'clients/add_review.html', {'order': order})
+        
+        return render(request, 'clients/add_review.html', {'order': order})
+        
+    except WashOrder.DoesNotExist:
+        messages.error(request, 'Order not found or is not completed.')
+        return redirect('clients:dashboard')
+    except Client.DoesNotExist:
+        messages.error(request, 'Client account not found.')
+        return redirect('clients:login')
+
+
+def view_reviews_view(request):
+    """View all reviews by the client"""
+    if 'client_id' not in request.session:
+        messages.error(request, 'Please log in to view reviews.')
+        return redirect('clients:login')
+    
+    client_id = request.session.get('client_id')
+    client_name = request.session.get('client_name', 'User')
+    
+    try:
+        client = Client.objects.get(client_id=client_id)
+        from .models import Review
+        
+        reviews = Review.objects.filter(client=client).select_related('wash_order', 'washer')
+        
+        context = {
+            'client_name': client_name,
+            'reviews': reviews,
+        }
+        
+        return render(request, 'clients/view_reviews.html', context)
         
     except Client.DoesNotExist:
         messages.error(request, 'Client account not found.')

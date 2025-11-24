@@ -1,0 +1,2 @@
+Django==5.1.13
+# mysqlclient==2.2.0  # Only needed for MySQL (paid tier)

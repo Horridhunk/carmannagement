@@ -264,3 +264,33 @@ class Appointment(models.Model):
                 print(f"ERROR: Failed to create wash order for appointment {self.id}: {e}")
                 raise e
         return self.wash_order
+
+
+class Review(models.Model):
+    """Client reviews for completed wash orders"""
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+    
+    review_id = models.AutoField(primary_key=True)
+    job_id = models.IntegerField()  # Reference to order_id
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='reviews')
+    wash_order = models.OneToOneField(WashOrder, on_delete=models.CASCADE, related_name='review')
+    washer = models.ForeignKey('washers.Washer', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
+    
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'reviews'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Review for Order #{self.wash_order.order_id} - {self.rating} stars"
