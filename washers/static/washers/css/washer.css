@@ -260,460 +260,8 @@ body {
         font-size: 2rem;
     }
 }
-/* Login
- Page Specific Animations */
-.login-card {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    animation: fadeInUp 0.5s ease-out forwards;
-}
 
-.login-header {
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: slideDown 0.4s ease-out 0.1s forwards;
-}
-
-.form-content {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.4s ease-out 0.2s forwards;
-}
-
-.form-group {
-    opacity: 0;
-    transform: translateX(-15px);
-    animation: slideInLeft 0.3s ease-out forwards;
-}
-
-.form-group:nth-child(1) { animation-delay: 0.3s; }
-.form-group:nth-child(2) { animation-delay: 0.35s; }
-.form-group:nth-child(3) { animation-delay: 0.4s; }
-.form-group:nth-child(4) { animation-delay: 0.45s; }
-
-.btn-primary {
-    opacity: 0;
-    transform: translateY(15px);
-    animation: fadeInUp 0.3s ease-out 0.5s forwards;
-}
-
-.text-center {
-    opacity: 0;
-    animation: fadeIn 0.3s ease-out 0.55s forwards;
-}
-
-/* Enhanced Form Controls for Login */
-.form-control:focus {
-    transform: translateY(-2px);
-}
-
-/* Alert Animation */
-.alert {
-    opacity: 0;
-    transform: translateY(-15px);
-    animation: slideDown 0.3s ease-out 0.15s forwards;
-}
-
-/* Additional Keyframe Animations */
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes slideDown {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInLeft {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}/* Enh
-anced Login to Dashboard Button */
-.btn-primary.w-100 {
-    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
-    border: none;
-    border-radius: 15px;
-    padding: 15px 24px;
-    font-weight: 700;
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(15, 76, 117, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.btn-primary.w-100::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s;
-}
-
-.btn-primary.w-100:hover::before {
-    left: 100%;
-}
-
-.btn-primary.w-100:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(15, 76, 117, 0.4);
-    background: linear-gradient(135deg, #3282b8 0%, #0f4c75 50%, #bbe1fa 100%);
-}
-
-.btn-primary.w-100:active {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 8px 20px rgba(15, 76, 117, 0.35);
-}
-
-.btn-primary.w-100 i {
-    margin-right: 10px;
-    font-size: 16px;
-    transition: transform 0.3s ease;
-}
-
-.btn-primary.w-100:hover i {
-    transform: translateX(3px);
-}
-
-/* Login Button Loading State */
-.btn-primary.w-100.loading {
-    pointer-events: none;
-    opacity: 0.8;
-}
-
-.btn-primary.w-100.loading::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    margin-left: -10px;
-    margin-top: -10px;
-    border: 2px solid transparent;
-    border-top: 2px solid #ffffff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Enhanced Login Card Styling */
-.login-card {
-    max-width: 450px;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 25px;
-    box-shadow: 0 25px 50px rgba(15, 76, 117, 0.2);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    overflow: hidden;
-}
-
-.login-header {
-    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
-    color: white;
-    border-radius: 25px 25px 0 0;
-    position: relative;
-    padding: 2rem;
-}
-
-.login-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-}
-
-.login-header h2 {
-    font-weight: 800;
-    font-size: 1.8rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-.login-header p {
-    opacity: 0.9;
-    font-weight: 400;
-    font-size: 1.1rem;
-    position: relative;
-    z-index: 1;
-}
-
-/* Enhanced Form Styling */
-.form-content {
-    padding: 2.5rem;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #023859;
-    margin-bottom: 0.8rem;
-    font-size: 1rem;
-}
-
-.form-control {
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    padding: 15px 18px;
-    font-size: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.form-control:focus {
-    border-color: #3282b8;
-    box-shadow: 0 0 0 0.25rem rgba(50, 130, 184, 0.15);
-    background: white;
-    transform: translateY(-2px);
-}
-
-/* Enhanced Link Styling */
-.text-center a {
-    color: #0f4c75;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.text-center a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background: linear-gradient(135deg, #0f4c75, #3282b8);
-    transition: width 0.3s ease;
-}
-
-.text-center a:hover::after {
-    width: 100%;
-}
-
-.text-center a:hover {
-    color: #3282b8;
-    transform: translateY(-1px);
-}/
-* Signup Page Specific Animations */
-.signup-card {
-    max-width: 600px;
-    width: 100%;
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    animation: fadeInUp 0.5s ease-out forwards;
-}
-
-.signup-header {
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: slideDown 0.4s ease-out 0.1s forwards;
-}
-
-.form-row {
-    opacity: 0;
-    transform: translateX(-15px);
-    animation: slideInLeft 0.3s ease-out forwards;
-}
-
-.form-row:nth-child(1) { animation-delay: 0.3s; }
-.form-row:nth-child(2) { animation-delay: 0.35s; }
-.form-row:nth-child(3) { animation-delay: 0.4s; }
-.form-row:nth-child(4) { animation-delay: 0.45s; }
-.form-row:nth-child(5) { animation-delay: 0.5s; }
-
-/* Enhanced Create Washer Account Button */
-.btn-primary.w-100 {
-    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
-    border: none;
-    border-radius: 15px;
-    padding: 15px 24px;
-    font-weight: 700;
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(15, 76, 117, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0;
-    transform: translateY(15px);
-    animation: fadeInUp 0.3s ease-out 0.55s forwards;
-}
-
-.btn-primary.w-100::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s;
-}
-
-.btn-primary.w-100:hover::before {
-    left: 100%;
-}
-
-.btn-primary.w-100:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(15, 76, 117, 0.4);
-    background: linear-gradient(135deg, #3282b8 0%, #0f4c75 50%, #bbe1fa 100%);
-}
-
-.btn-primary.w-100:active {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 8px 20px rgba(15, 76, 117, 0.35);
-}
-
-.btn-primary.w-100 i {
-    margin-right: 10px;
-    font-size: 16px;
-    transition: transform 0.3s ease;
-}
-
-.btn-primary.w-100:hover i {
-    transform: translateX(3px);
-}
-
-/* Form Validation Styles */
-.form-control.is-valid {
-    border-color: #28a745;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.94-.94 1.44 1.44L7.4 4.5l.94.94L4.66 9.2z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
-}
-
-.form-control.is-invalid {
-    border-color: #dc3545;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4M7.2 4.6l-1.4 1.4'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
-}
-
-.text-danger {
-    color: #dc3545 !important;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    font-weight: 500;
-}
-
-.text-muted {
-    color: #6c757d !important;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-
-/* Enhanced Signup Card */
-.signup-header {
-    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
-    color: white;
-    border-radius: 25px 25px 0 0;
-    position: relative;
-    padding: 2rem;
-}
-
-.signup-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-}
-
-.signup-header h2 {
-    font-weight: 800;
-    font-size: 1.8rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-.signup-header p {
-    opacity: 0.9;
-    font-weight: 400;
-    font-size: 1.1rem;
-    position: relative;
-    z-index: 1;
-}
-
-/* Individual field animations */
-.col-md-6:nth-child(1) .form-control { 
-    animation-delay: 0.05s; 
-    opacity: 0;
-    transform: translateY(8px);
-    animation: fadeInUp 0.3s ease-out forwards;
-}
-
-.col-md-6:nth-child(2) .form-control { 
-    animation-delay: 0.1s; 
-    opacity: 0;
-    transform: translateY(8px);
-    animation: fadeInUp 0.3s ease-out forwards;
-}
-
-/* Row spacing for signup form */
-.signup-card .row {
-    margin-bottom: 0;
-}
-
-.signup-card .row .col-md-6 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-}
-
-/* Enhanced form content padding */
-.signup-card .form-content {
-    padding: 2.5rem;
-}
-
-/* Responsive adjustments for signup */
-@media (max-width: 768px) {
-    .signup-card {
-        max-width: 100%;
-        margin: 0 15px;
-    }
-    
-    .signup-card .form-content {
-        padding: 2rem 1.5rem;
-    }
-    
-    .signup-card .row .col-md-6 {
-        padding-left: 0;
-        padding-right: 0;
-        margin-bottom: 1rem;
-    }
-}/* Comb
-ined Auth Form Styles */
+/* Combined Auth Form Styles */
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -841,10 +389,105 @@ ined Auth Form Styles */
     animation: fadeInUp 0.3s ease-out 0.55s forwards;
 }
 
-/* Tab Switch Animation */
-.auth-card.switching .auth-form-container {
-    opacity: 0;
-    transform: translateY(20px);
+/* Enhanced Button Styling for Combined Form */
+.auth-form-container .btn-primary.w-100 {
+    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
+    border: none;
+    border-radius: 15px;
+    padding: 15px 24px;
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(15, 76, 117, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.auth-form-container .btn-primary.w-100::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.auth-form-container .btn-primary.w-100:hover::before {
+    left: 100%;
+}
+
+.auth-form-container .btn-primary.w-100:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(15, 76, 117, 0.4);
+    background: linear-gradient(135deg, #3282b8 0%, #0f4c75 50%, #bbe1fa 100%);
+}
+
+.auth-form-container .btn-primary.w-100 i {
+    margin-right: 10px;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.auth-form-container .btn-primary.w-100:hover i {
+    transform: translateX(3px);
+}
+
+/* Form Validation Styles */
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.94-.94 1.44 1.44L7.4 4.5l.94.94L4.66 9.2z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4M7.2 4.6l-1.4 1.4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
+.text-danger {
+    color: #dc3545 !important;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.text-muted {
+    color: #6c757d !important;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Keyframe Animations */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideDown {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Responsive Design for Combined Form */
@@ -891,132 +534,4 @@ ined Auth Form Styles */
         margin: 0 0 4px 0;
         font-size: 1.2rem;
     }
-}
-
-/* Enhanced Button Styling for Combined Form */
-.auth-form-container .btn-primary.w-100 {
-    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #bbe1fa 100%);
-    border: none;
-    border-radius: 15px;
-    padding: 15px 24px;
-    font-weight: 700;
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(15, 76, 117, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.auth-form-container .btn-primary.w-100::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s;
-}
-
-.auth-form-container .btn-primary.w-100:hover::before {
-    left: 100%;
-}
-
-.auth-form-container .btn-primary.w-100:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(15, 76, 117, 0.4);
-    background: linear-gradient(135deg, #3282b8 0%, #0f4c75 50%, #bbe1fa 100%);
-}
-
-.auth-form-container .btn-primary.w-100 i {
-    margin-right: 10px;
-    font-size: 16px;
-    transition: transform 0.3s ease;
-}
-
-.auth-form-container .btn-primary.w-100:hover i {
-    transform: translateX(3px);
-}/* Pr
-oject Color Scheme Override - Match main project colors */
-body {
-    background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%) !important;
-}
-
-.dashboard-header,
-.login-header, 
-.signup-header,
-.auth-tabs {
-    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%) !important;
-}
-
-.btn-primary,
-.btn-primary.w-100,
-.auth-form-container .btn-primary.w-100 {
-    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%) !important;
-}
-
-.btn-primary:hover,
-.btn-primary.w-100:hover,
-.auth-form-container .btn-primary.w-100:hover {
-    background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%) !important;
-}
-
-.form-label {
-    color: #023859 !important;
-}
-
-.auth-header h2 {
-    color: #023859 !important;
-}
-
-.text-center a {
-    color: #023859 !important;
-}
-
-.text-center a::after {
-    background: linear-gradient(135deg, #023859, #a7ebf2) !important;
-}
-
-.text-center a:hover {
-    color: #a7ebf2 !important;
-}
-
-/* Update shadow colors to match project theme */
-.auth-card,
-.login-card,
-.signup-card {
-    box-shadow: 0 25px 50px rgba(2, 56, 89, 0.2) !important;
-}
-
-.auth-card:hover,
-.login-card:hover,
-.signup-card:hover {
-    box-shadow: 0 25px 50px rgba(2, 56, 89, 0.25) !important;
-}
-
-.btn-primary.w-100,
-.auth-form-container .btn-primary.w-100 {
-    box-shadow: 0 8px 25px rgba(2, 56, 89, 0.3) !important;
-}
-
-.btn-primary.w-100:hover,
-.auth-form-container .btn-primary.w-100:hover {
-    box-shadow: 0 15px 35px rgba(2, 56, 89, 0.4) !important;
-}
-
-/* Focus states with project colors */
-.form-control:focus {
-    border-color: #023859 !important;
-    box-shadow: 0 0 0 0.25rem rgba(2, 56, 89, 0.15) !important;
-}
-
-/* Update any remaining blue references */
-.hero-cta {
-    background: linear-gradient(135deg, #023859, #a7ebf2) !important;
-}
-
-.hero-cta:hover {
-    background: linear-gradient(135deg, #a7ebf2, #023859) !important;
 }
