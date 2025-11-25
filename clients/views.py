@@ -188,6 +188,10 @@ def logout_view(request):
 def index_view(request):
     return render(request, 'clients/index.html')
 
+def home_view(request):
+    """Landing page with all system links"""
+    return render(request, 'clients/home.html')
+
 def forgot_password_view(request):
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
