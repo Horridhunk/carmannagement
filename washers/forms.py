@@ -2,6 +2,29 @@ from django import forms
 from .models import Washer
 import re
 
+
+def normalize_phone_number(phone):
+    """
+    Normalize phone number to standard format (0XXXXXXXXX)
+    Accepts formats:
+    - 0712345678 (local format)
+    - +254712345678 (international with +)
+    - 254712345678 (international without +)
+    """
+    if not phone:
+        return phone
+    
+    # Remove spaces, dashes, parentheses
+    phone = re.sub(r'[\s\-\(\)]', '', phone)
+    
+    # Handle international format
+    if phone.startswith('+254'):
+        phone = '0' + phone[4:]
+    elif phone.startswith('254'):
+        phone = '0' + phone[3:]
+    
+    return phone
+
 class WasherSignupForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
@@ -58,33 +81,23 @@ class WasherSignupForm(forms.ModelForm):
         if not phone:
             raise forms.ValidationError("Phone number is required.")
         
-        # Store original for debugging
         original_phone = phone
+        phone = normalize_phone_number(phone)
         
-        # Remove any spaces, dashes, or other non-digit characters except the leading digits
-        phone = re.sub(r'[\s\-\(\)]', '', phone)
-        
-        # Debug info
-        print(f"Phone validation debug:")
-        print(f"  Original: '{original_phone}'")
-        print(f"  Cleaned: '{phone}'")
-        print(f"  Length: {len(phone)}")
-        print(f"  Starts with 01/07: {phone.startswith('01') or phone.startswith('07')}")
-        
-        # Check if phone number matches the pattern: starts with 01 or 07 and has exactly 10 digits
+        # Validate format
         if len(phone) != 10:
             raise forms.ValidationError(
-                f"Phone number must be exactly 10 digits. You entered {len(phone)} digits: '{phone}'"
+                f"Phone number must be 10 digits (e.g., 0712345678) or include country code (e.g., +254712345678)."
             )
             
         if not (phone.startswith('01') or phone.startswith('07')):
             raise forms.ValidationError(
-                f"Phone number must start with 01 or 07. Your number starts with: '{phone[:2]}'"
+                "Phone number must start with 01 or 07 (or +254 for international format)."
             )
             
         if not phone.isdigit():
             raise forms.ValidationError(
-                f"Phone number must contain only digits. Invalid characters found in: '{phone}'"
+                "Phone number must contain only digits."
             )
         
         # Check if phone number already exists
@@ -189,18 +202,17 @@ class AdminAddWasherForm(forms.ModelForm):
         if not phone:
             raise forms.ValidationError("Phone number is required.")
         
-        # Remove any spaces, dashes, or other non-digit characters
-        phone = re.sub(r'[\s\-\(\)]', '', phone)
+        phone = normalize_phone_number(phone)
         
-        # Check if phone number matches the pattern: starts with 01 or 07 and has exactly 10 digits
+        # Validate format
         if len(phone) != 10:
             raise forms.ValidationError(
-                f"Phone number must be exactly 10 digits. You entered {len(phone)} digits."
+                "Phone number must be 10 digits (e.g., 0712345678) or include country code (e.g., +254712345678)."
             )
             
         if not (phone.startswith('01') or phone.startswith('07')):
             raise forms.ValidationError(
-                "Phone number must start with 01 or 07."
+                "Phone number must start with 01 or 07 (or +254 for international format)."
             )
             
         if not phone.isdigit():
@@ -246,18 +258,17 @@ class WasherProfileForm(forms.ModelForm):
         if not phone:
             raise forms.ValidationError("Phone number is required.")
         
-        # Remove any spaces, dashes, or other non-digit characters
-        phone = re.sub(r'[\s\-\(\)]', '', phone)
+        phone = normalize_phone_number(phone)
         
-        # Check if phone number matches the pattern: starts with 01 or 07 and has exactly 10 digits
+        # Validate format
         if len(phone) != 10:
             raise forms.ValidationError(
-                f"Phone number must be exactly 10 digits. You entered {len(phone)} digits."
+                "Phone number must be 10 digits (e.g., 0712345678) or include country code (e.g., +254712345678)."
             )
             
         if not (phone.startswith('01') or phone.startswith('07')):
             raise forms.ValidationError(
-                "Phone number must start with 01 or 07."
+                "Phone number must start with 01 or 07 (or +254 for international format)."
             )
             
         if not phone.isdigit():
@@ -455,18 +466,17 @@ class AdminEditWasherForm(forms.ModelForm):
         if not phone:
             raise forms.ValidationError("Phone number is required.")
         
-        # Remove any spaces, dashes, or other non-digit characters
-        phone = re.sub(r'[\s\-\(\)]', '', phone)
+        phone = normalize_phone_number(phone)
         
-        # Check if phone number matches the pattern: starts with 01 or 07 and has exactly 10 digits
+        # Validate format
         if len(phone) != 10:
             raise forms.ValidationError(
-                f"Phone number must be exactly 10 digits. You entered {len(phone)} digits."
+                "Phone number must be 10 digits (e.g., 0712345678) or include country code (e.g., +254712345678)."
             )
             
         if not (phone.startswith('01') or phone.startswith('07')):
             raise forms.ValidationError(
-                "Phone number must start with 01 or 07."
+                "Phone number must start with 01 or 07 (or +254 for international format)."
             )
             
         if not phone.isdigit():

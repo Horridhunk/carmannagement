@@ -27,7 +27,7 @@
 			<input type="text" placeholder="First Name" name="first_name" value="{{ request.POST.first_name }}" required />
 			<input type="text" placeholder="Last Name" name="last_name" value="{{ request.POST.last_name }}" required />
 			<input type="email" placeholder="Email" name="email" value="{{ request.POST.email }}" required />
-			<input type="tel" placeholder="Phone (01XX XXX XXX)" name="phone" value="{{ request.POST.phone }}" required />
+			<input type="tel" placeholder="Phone (0712345678 or +254712345678)" name="phone" value="{{ request.POST.phone }}" required />
 			<input type="password" placeholder="Password" name="password" required />
 			<input type="password" placeholder="Confirm Password" name="confirm_password" required />
 			<button type="submit">Sign Up</button>
@@ -76,8 +76,24 @@
 		Created with <i class="fa fa-heart"></i> by
 		<a target="_blank" href="https://florin-pop.com">Florin Pop</a>
 		- Read how I created this and how you can join the challenge
-		<a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>.
+		<a target="_blank" href="https://florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>.
 	</p>
 </footer>
+
+<script>
+	// Check if there are error messages and form data in signup form
+	document.addEventListener('DOMContentLoaded', function() {
+		const signupForm = document.querySelector('.sign-up-container form');
+		const hasSignupData = signupForm.querySelector('input[name="first_name"]').value || 
+		                      signupForm.querySelector('input[name="email"]').value;
+		const hasSignupErrors = signupForm.querySelector('.alert');
+		
+		// If there's signup data or errors, show the signup form
+		if (hasSignupData || hasSignupErrors) {
+			const container = document.getElementById('container');
+			container.classList.add('right-panel-active');
+		}
+	});
+</script>
 </body>
 </html>

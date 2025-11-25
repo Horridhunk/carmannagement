@@ -29,7 +29,12 @@ def washer_signup_view(request):
             messages.success(request, f'Welcome to your dashboard, {washer.first_name}! Your account has been created successfully.')
             return redirect('washers:dashboard')  # Redirect directly to dashboard
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Show specific error messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
+            # Redirect back to auth page with signup form active
+            return redirect('washers:auth')
     else:
         form = WasherSignupForm()
     
@@ -46,7 +51,7 @@ def washer_login_view(request):
         
         if not email or not password:
             messages.error(request, 'Please enter both email and password.')
-            return render(request, 'washers/login.html')
+            return redirect('washers:auth')
         
         try:
             # Query the database for the washer
@@ -63,10 +68,12 @@ def washer_login_view(request):
                 return redirect('washers:dashboard')
             else:
                 messages.error(request, 'Invalid email or password.')
+                return redirect('washers:auth')
         except Washer.DoesNotExist:
             messages.error(request, 'Invalid email or password.')
+            return redirect('washers:auth')
     
-    return render(request, 'washers/login.html')
+    return redirect('washers:auth')
 
 def washer_dashboard_view(request):
     # Check if washer is logged in
