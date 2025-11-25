@@ -10,6 +10,7 @@
         body {
             background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
             min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
         }
         .dashboard-container {
             min-height: 100vh;
@@ -25,25 +26,95 @@
             background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
             color: white;
             border-radius: 15px 15px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         .stat-card {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 25px;
             margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #a7ebf2;
+        }
+        .stat-card .icon-wrapper {
+            background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #023859;
         }
         .action-card {
             background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 25px;
             margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
         }
         .action-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: #a7ebf2;
+        }
+        .action-card .badge-notification {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .quick-book-btn {
+            background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(2, 56, 89, 0.3);
+            transition: all 0.3s ease;
+        }
+        .quick-book-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(2, 56, 89, 0.4);
         }
         .status-badge {
             font-size: 0.9em;
@@ -80,6 +151,39 @@
             bottom: 0;
             background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
             border-radius: 50%;
+        }
+        .progress-bar-custom {
+            height: 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+            transition: width 1s ease;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(167, 235, 242, 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+            .action-card {
+                margin-bottom: 15px;
+            }
+            .dashboard-header h2 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -127,89 +231,133 @@
                         {% endfor %}
                     {% endif %}
 
+                    <!-- Quick Book Button -->
+                    <div class="text-center mb-4 fade-in">
+                        <a href="{% url 'clients:schedule_appointment' %}" class="btn btn-primary quick-book-btn">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Car Wash Now
+                        </a>
+                    </div>
+
                     <!-- Statistics Cards -->
                     <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <i class="fas fa-shopping-cart fa-2x text-primary mb-2"></i>
-                                <h4>{{ total_orders|default:0 }}</h4>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="stat-card fade-in">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-shopping-cart fa-2x"></i>
+                                </div>
+                                <div class="stat-number" data-target="{{ total_orders|default:0 }}">0</div>
                                 <p class="text-muted mb-0">Total Orders</p>
+                                {% if total_orders > 0 %}
+                                <div class="progress-bar-custom">
+                                    <div class="progress-bar-fill" style="width: 100%"></div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <i class="fas fa-car fa-2x text-success mb-2"></i>
-                                <h4>{{ total_cars|default:0 }}</h4>
-                                <p class="text-muted mb-0">My Cars</p>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="stat-card fade-in" style="animation-delay: 0.1s">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-car fa-2x"></i>
+                                </div>
+                                <div class="stat-number" data-target="{{ total_cars|default:0 }}">0</div>
+                                <p class="text-muted mb-0">My Vehicles</p>
+                                {% if total_cars > 0 %}
+                                <div class="progress-bar-custom">
+                                    <div class="progress-bar-fill" style="width: {{ total_cars|add:0|floatformat:0 }}%"></div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
-                                <h4>{{ pending_orders|default:0 }}</h4>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="stat-card fade-in" style="animation-delay: 0.2s">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                                <div class="stat-number" data-target="{{ pending_orders|default:0 }}">0</div>
                                 <p class="text-muted mb-0">Pending Orders</p>
+                                {% if pending_orders > 0 %}
+                                <div class="progress-bar-custom">
+                                    <div class="progress-bar-fill" style="width: 75%"></div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
-                                <h4>${{ total_spent|default:0 }}</h4>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="stat-card fade-in" style="animation-delay: 0.3s">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-dollar-sign fa-2x"></i>
+                                </div>
+                                <div class="stat-number" data-target="{{ total_spent|default:0 }}">0</div>
                                 <p class="text-muted mb-0">Total Spent</p>
+                                {% if total_spent > 0 %}
+                                <div class="progress-bar-custom">
+                                    <div class="progress-bar-fill" style="width: 90%"></div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
 
                     <!-- Quick Actions -->
                     <div class="row mb-4">
-                        <div class="col-12">
+                        <div class="col-12 mb-3">
                             <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
                             <div class="action-card text-center">
-                                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                                <i class="fas fa-plus-circle fa-3x mb-3" style="background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <h5>Schedule Appointment</h5>
-                                <p class="text-muted">Book a time slot for car wash service</p>
-                                <a href="{% url 'clients:schedule_appointment' %}" class="btn btn-primary">Schedule Now</a>
+                                <p class="text-muted small">Book a time slot for car wash service</p>
+                                <a href="{% url 'clients:schedule_appointment' %}" class="btn btn-primary btn-sm w-100">Schedule Now</a>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
                             <div class="action-card text-center">
-                                <i class="fas fa-car fa-3x text-success mb-3"></i>
-                                <h5>Manage Cars</h5>
-                                <p class="text-muted">Add or edit your vehicle information</p>
-                                <a href="{% url 'clients:manage_vehicles' %}" class="btn btn-success">Manage Cars</a>
+                                {% if total_cars == 0 %}
+                                <span class="badge-notification">Add Vehicle</span>
+                                {% endif %}
+                                <i class="fas fa-car fa-3x mb-3" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                <h5>Manage Vehicles</h5>
+                                <p class="text-muted small">Add or edit your vehicle information</p>
+                                <a href="{% url 'clients:manage_vehicles' %}" class="btn btn-success btn-sm w-100">Manage Vehicles</a>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
                             <div class="action-card text-center">
-                                <i class="fas fa-calendar-check fa-3x text-warning mb-3"></i>
+                                {% if pending_orders > 0 %}
+                                <span class="badge-notification">{{ pending_orders }}</span>
+                                {% endif %}
+                                <i class="fas fa-calendar-check fa-3x mb-3" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <h5>My Appointments</h5>
-                                <p class="text-muted">View and manage your appointments</p>
-                                <a href="{% url 'clients:my_appointments' %}" class="btn btn-warning">View Appointments</a>
+                                <p class="text-muted small">View and manage your appointments</p>
+                                <a href="{% url 'clients:my_appointments' %}" class="btn btn-warning btn-sm w-100">View Appointments</a>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
                             <div class="action-card text-center">
-                                <i class="fas fa-history fa-3x text-info mb-3"></i>
+                                <i class="fas fa-history fa-3x mb-3" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <h5>Order History</h5>
-                                <p class="text-muted">View your past wash orders</p>
-                                <a href="{% url 'clients:order_history' %}" class="btn btn-info">View History</a>
+                                <p class="text-muted small">View your past wash orders</p>
+                                <a href="{% url 'clients:order_history' %}" class="btn btn-info btn-sm w-100">View History</a>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recent Orders -->
                     <div class="row mb-4">
-                        <div class="col-12">
+                        <div class="col-12 mb-3">
                             <h4><i class="fas fa-list"></i> Recent Orders</h4>
+                        </div>
+                        <div class="col-12">
                             {% if recent_orders %}
                                 <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
+                                    <table class="table table-hover">
+                                        <thead style="background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%); color: white;">
                                             <tr>
                                                 <th>Order #</th>
-                                                <th>Car</th>
+                                                <th>Vehicle</th>
                                                 <th>Service</th>
+                                                <th>Washer</th>
                                                 <th>Status</th>
                                                 <th>Date</th>
                                                 <th>Price</th>
@@ -219,20 +367,32 @@
                                         <tbody>
                                             {% for order in recent_orders %}
                                             <tr>
-                                                <td>#{{ order.order_id }}</td>
-                                                <td>{{ order.vehicle }}</td>
+                                                <td><strong>#{{ order.order_id }}</strong></td>
+                                                <td><i class="fas fa-car me-1"></i>{{ order.vehicle }}</td>
                                                 <td>{{ order.get_wash_type_display }}</td>
                                                 <td>
+                                                    {% if order.washer %}
+                                                        <i class="fas fa-user me-1"></i>{{ order.washer.first_name }}
+                                                    {% else %}
+                                                        <span class="text-muted">Unassigned</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
                                                     <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'in_progress' %}warning{% elif order.status == 'pending' %}info{% else %}secondary{% endif %}">
+                                                        <i class="fas fa-{% if order.status == 'completed' %}check-circle{% elif order.status == 'in_progress' %}spinner{% elif order.status == 'pending' %}clock{% else %}times-circle{% endif %} me-1"></i>
                                                         {{ order.get_status_display }}
                                                     </span>
                                                 </td>
-                                                <td>{{ order.created_at|date:"M d, Y" }}</td>
-                                                <td>${{ order.price }}</td>
+                                                <td><i class="fas fa-calendar me-1"></i>{{ order.created_at|date:"M d, Y" }}</td>
+                                                <td><strong>${{ order.price }}</strong></td>
                                                 <td>
                                                     {% if order.status == 'completed' %}
                                                         <a href="{% url 'clients:add_review' order.order_id %}" class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-star"></i> Review
+                                                        </a>
+                                                    {% elif order.status == 'in_progress' or order.status == 'assigned' %}
+                                                        <a href="{% url 'clients:track_order' order.order_id %}" class="btn btn-sm btn-outline-info">
+                                                            <i class="fas fa-eye"></i> Track
                                                         </a>
                                                     {% endif %}
                                                 </td>
@@ -242,10 +402,11 @@
                                     </table>
                                 </div>
                             {% else %}
-                                <div class="text-center py-4">
-                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">No orders yet. Book your first car wash!</p>
-                                    <a href="{% url 'clients:book_wash' %}" class="btn btn-primary">Book Your First Wash</a>
+                                <div class="action-card text-center py-5">
+                                    <i class="fas fa-inbox fa-4x mb-3" style="background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                    <h5>No orders yet</h5>
+                                    <p class="text-muted">Start your car wash journey today!</p>
+                                    <a href="{% url 'clients:schedule_appointment' %}" class="btn btn-primary">Book Your First Wash</a>
                                 </div>
                             {% endif %}
                         </div>
@@ -299,5 +460,46 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animated counter for statistics
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.stat-number');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const duration = 2000; // 2 seconds
+                const increment = target / (duration / 16); // 60fps
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                // Start animation when element is in viewport
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            updateCounter();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                
+                observer.observe(counter);
+            });
+            
+            // Add fade-in animation to elements
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
 </body>
 </html>
