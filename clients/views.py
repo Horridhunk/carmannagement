@@ -70,6 +70,7 @@ def login_view(request):
                 request.session['client_id'] = client.client_id
                 request.session['client_email'] = client.email
                 request.session['client_name'] = f"{client.first_name} {client.last_name}"
+                request.session['is_guest'] = False
                 
                 messages.success(request, f'Welcome back, {client.first_name}!')
                 return redirect('clients:dashboard')
@@ -79,6 +80,17 @@ def login_view(request):
             messages.error(request, 'Invalid email or password.')
     
     return render(request, 'clients/login.html')
+
+def guest_login_view(request):
+    """Allow users to browse as guest without creating an account"""
+    # Set guest session data
+    request.session['client_id'] = 'guest'
+    request.session['client_email'] = 'guest@carwash.com'
+    request.session['client_name'] = 'Guest User'
+    request.session['is_guest'] = True
+    
+    messages.info(request, 'You are browsing as a guest. Sign up to book services and track orders.')
+    return redirect('clients:dashboard')
 
 def dashboard_view(request):
     # Check if user is logged in
@@ -90,6 +102,7 @@ def dashboard_view(request):
     client_id = request.session.get('client_id')
     client_name = request.session.get('client_name', 'User')
     client_email = request.session.get('client_email', '')
+    is_guest = request.session.get('is_guest', False)
     
     # Generate initials from client name
     name_parts = client_name.split()
@@ -102,6 +115,22 @@ def dashboard_view(request):
     total_spent = 0
     recent_orders = []
     client_reviews = []
+    
+    # If guest mode, show demo data
+    if is_guest:
+        context = {
+            'client_name': client_name,
+            'client_initials': client_initials,
+            'client_email': client_email,
+            'is_guest': True,
+            'total_orders': 0,
+            'total_cars': 0,
+            'pending_orders': 0,
+            'total_spent': 0,
+            'recent_orders': [],
+            'client_reviews': [],
+        }
+        return render(request, 'clients/dashboard.html', context)
     
     try:
         # Get client object
@@ -140,6 +169,7 @@ def dashboard_view(request):
         'client_name': client_name,
         'client_initials': client_initials,
         'client_email': client_email,
+        'is_guest': is_guest,
         'total_orders': total_orders,
         'total_cars': total_cars,
         'pending_orders': pending_orders,
@@ -259,6 +289,11 @@ def manage_vehicles_view(request):
         messages.error(request, 'Please log in to access this page.')
         return redirect('clients:login')
     
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to manage vehicles.')
+        return redirect('clients:signup')
+    
     client_id = request.session.get('client_id')
     try:
         client = Client.objects.get(client_id=client_id)
@@ -278,6 +313,11 @@ def add_vehicle_view(request):
     if 'client_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
         return redirect('clients:login')
+    
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to add vehicles.')
+        return redirect('clients:signup')
     
     client_id = request.session.get('client_id')
     try:
@@ -309,6 +349,11 @@ def book_wash_view(request):
     if 'client_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
         return redirect('clients:login')
+    
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to book a wash service.')
+        return redirect('clients:signup')
     
     client_id = request.session.get('client_id')
     try:

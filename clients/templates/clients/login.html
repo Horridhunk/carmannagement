@@ -54,6 +54,9 @@
 			<input type="password" name="password" placeholder="Password" required />
 			<a href="{% url 'clients:forgot_password' %}">Forgot your password?</a>
 			<button type="submit">Sign In</button>
+			<a href="{% url 'clients:guest_login' %}" class="guest-btn">
+				<i class="fas fa-user-circle"></i> Continue as Guest
+			</a>
 		</form>
 	</div>
 	<div class="overlay-container">
