@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="theme-color" content="#0078d4" />
-    <link rel="stylesheet" href="{% static 'clients/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v=2.0" />
 </head>
 <body>
     <!-- Added top navigation -->
@@ -33,7 +33,7 @@
             <h1>Experience the Future of Car Care</h1>
             <p>Welcome to our state-of-the-art carwash facility where cutting-edge technology meets exceptional service.</p>
             <p>Our modernized approach combines eco-friendly cleaning solutions with advanced automated systems to deliver a spotless finish every time.</p>
-            <button class="hero-cta" onclick="window.location.href='{% url 'washers:login' %}'">Book Now</button>
+            <button class="hero-cta" onclick="window.location.href='{% url 'clients:schedule_appointment' %}'">Book Now</button>
         </div>
         <div class="wave-overlay">
             <svg class="wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
