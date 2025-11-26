@@ -648,32 +648,33 @@ li::marker {
 .hero-section .wave path {
     transform: none !important; /* keep paths unrotated individually, the parent flip handles inversion */
 }
-/* He
-ro CTA Button */
+/* Hero CTA Button */
 .hero-cta {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
     color: white;
-    padding: 1rem 2rem;
+    padding: 1rem 2.5rem;
     border: none;
-    border-radius: 30px;
+    border-radius: 50px;
     font-size: 1.1rem;
-    font-weight: 600;
-    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-family: 'Montserrat', 'Poppins', sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 8px 20px rgba(2, 56, 89, 0.3);
     margin-top: 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .hero-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
-    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(2, 56, 89, 0.5);
+    background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .hero-cta:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(2, 56, 89, 0.4);
 }
