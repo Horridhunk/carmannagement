@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v=3.0" />
+    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v={{ STATIC_VERSION }}" />
     <style>
         .page-header {
             background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
@@ -205,7 +205,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="site-footer">
+    <footer class="site-footer" id="contact">
         <div class="footer-content">
             <div class="footer-section">
                 <h3><i class="fas fa-car-wash"></i> Modern Carwash</h3>
@@ -229,9 +229,9 @@
             <div class="footer-section">
                 <h4>Services</h4>
                 <ul>
-                    <li><a href="{% url 'clients:services' %}">Express Wash</a></li>
-                    <li><a href="{% url 'clients:services' %}">Premium Detail</a></li>
-                    <li><a href="{% url 'clients:services' %}">Protection Package</a></li>
+                    <li><a href="#services">Express Wash</a></li>
+                    <li><a href="#services">Premium Detail</a></li>
+                    <li><a href="#services">Protection Package</a></li>
                     <li><a href="{% url 'clients:schedule_appointment' %}">Book Appointment</a></li>
                 </ul>
             </div>
