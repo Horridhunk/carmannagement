@@ -192,6 +192,29 @@ def home_view(request):
     """Landing page with all system links"""
     return render(request, 'clients/home.html')
 
+def services_view(request):
+    """Services page"""
+    return render(request, 'clients/services.html')
+
+def about_view(request):
+    """About page"""
+    return render(request, 'clients/about.html')
+
+def contact_view(request):
+    """Contact page with form"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Here you can add email sending logic
+        # For now, just show a success message
+        messages.success(request, f'Thank you {name}! Your message has been received. We will get back to you soon.')
+        return redirect('clients:contact')
+    
+    return render(request, 'clients/contact.html')
+
 def forgot_password_view(request):
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)

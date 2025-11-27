@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Modern Carwash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v=3.0" />
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+            padding: 100px 0 60px;
+            text-align: center;
+            color: white;
+        }
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .contact-content {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 40px;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+        .contact-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .contact-form h2 {
+            color: #023859;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #023859;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #a7ebf2;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #023859 0%, #a7ebf2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(2, 56, 89, 0.3);
+        }
+        .contact-info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .info-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #a7ebf2 0%, #023859 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .info-content h3 {
+            color: #023859;
+            margin-bottom: 5px;
+        }
+        .info-content p {
+            color: #666;
+            margin: 0;
+        }
+        .map-section {
+            margin-top: 60px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .map-section iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+        }
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="site-nav">
+        <a href="{% url 'clients:index' %}" class="brand">
+            <i class="fas fa-car-wash"></i> Modern Carwash
+        </a>
+        <div class="nav-inner">
+            <ul class="nav-links">
+                <li><a href="{% url 'clients:services' %}">Services</a></li>
+                <li><a href="{% url 'clients:about' %}">About</a></li>
+                <li><a href="{% url 'clients:contact' %}">Contact</a></li>
+            </ul>
+            <a href="{% url 'clients:login' %}" class="nav-cta">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-envelope"></i> Contact Us</h1>
+        <p>We'd love to hear from you</p>
+    </div>
+
+    <!-- Contact Content -->
+    <div class="contact-content">
+        <div class="contact-grid">
+            <!-- Contact Form -->
+            <div class="contact-form">
+                <h2>Send Us a Message</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Your Name *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="contact-info-section">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Phone</h3>
+                        <p>+254 700 000 000</p>
+                        <p>+254 711 000 000</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Email</h3>
+                        <p>info@moderncarwash.com</p>
+                        <p>support@moderncarwash.com</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Location</h3>
+                        <p>Westlands, Nairobi</p>
+                        <p>Kenya</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Business Hours</h3>
+                        <p>Monday - Saturday: 8:00 AM - 6:00 PM</p>
+                        <p>Sunday: Closed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8193830193!2d36.8219!3d-1.2921!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMTcnMzEuNiJTIDM2wrA0OScxOC44IkU!5e0!3m2!1sen!2ske!4v1234567890"
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-car-wash"></i> Modern Carwash</h3>
+                <p>Your trusted partner for premium car care services.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'clients:login' %}">Customer Login</a></li>
+                    <li><a href="{% url 'washers:auth' %}">Washer Portal</a></li>
+                    <li><a href="/carwash-admin/">Admin Dashboard</a></li>
+                    <li><a href="{% url 'clients:signup' %}">Sign Up</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="{% url 'clients:services' %}">Express Wash</a></li>
+                    <li><a href="{% url 'clients:services' %}">Premium Detail</a></li>
+                    <li><a href="{% url 'clients:services' %}">Protection Package</a></li>
+                    <li><a href="{% url 'clients:schedule_appointment' %}">Book Appointment</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul class="contact-info">
+                    <li><i class="fas fa-phone"></i> +254 700 000 000</li>
+                    <li><i class="fas fa-envelope"></i> info@moderncarwash.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</li>
+                    <li><i class="fas fa-clock"></i> Mon-Sat: 8AM - 6PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Modern Carwash. All rights reserved. | Built with Django</p>
+        </div>
+    </footer>
+</body>
+</html>

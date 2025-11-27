@@ -14,17 +14,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="theme-color" content="#0078d4" />
-    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v=2.0" />
+    <link rel="stylesheet" href="{% static 'clients/styles.css' %}?v=4.0" />
 </head>
 <body>
-    <!-- Added top navigation -->
+    <!-- Enhanced top navigation -->
     <nav class="site-nav" aria-label="Primary">
-        <a href="/" class="brand">Modern Carwash</a>
+        <a href="/" class="brand">
+            <i class="fas fa-car-wash"></i> Modern Carwash
+        </a>
         <div class="nav-inner">
             <ul class="nav-links" role="menubar">
+                <li><a href="{% url 'clients:services' %}">Services</a></li>
+                <li><a href="{% url 'clients:about' %}">About</a></li>
+                <li><a href="{% url 'clients:contact' %}">Contact</a></li>
             </ul>
+            <a href="{% url 'clients:login' %}" class="nav-cta">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
         </div>
-
     </nav>
 
     <div class="hero-section">
@@ -44,9 +51,11 @@
         </div>
    </div>
 
-        <div class="content-section">
-            <h2 style="text-align:center;">Our Premium Services</h2>
-            <p>Choose from our comprehensive range of professional car care services designed to keep your vehicle looking its absolute best.</p>
+        <div class="content-section" id="services">
+            <div class="section-header">
+                <h2>Our Premium Services</h2>
+                <p class="section-subtitle">Choose from our comprehensive range of professional car care services designed to keep your vehicle looking its absolute best.</p>
+            </div>
             
             <div class="services-container">
                 <div class="service-card">
@@ -90,8 +99,102 @@
                 </div>
             </div>
 
+            <!-- Why Choose Us Section -->
+            <div class="why-choose-section" id="about">
+                <h2>Why Choose Modern Carwash?</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3>Eco-Friendly</h3>
+                        <p>We use biodegradable products that are safe for your car and the environment.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>Fast Service</h3>
+                        <p>Quick turnaround times without compromising on quality.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Quality Guaranteed</h3>
+                        <p>100% satisfaction guarantee on all our services.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Expert Team</h3>
+                        <p>Trained professionals who care about your vehicle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <h2>Ready to Give Your Car the Care It Deserves?</h2>
+                <p>Book your appointment today and experience the difference!</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'clients:schedule_appointment' %}" class="cta-button primary">
+                        <i class="fas fa-calendar-check"></i> Book Now
+                    </a>
+                    <a href="{% url 'clients:signup' %}" class="cta-button secondary">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="site-footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-car-wash"></i> Modern Carwash</h3>
+                <p>Your trusted partner for premium car care services.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'clients:login' %}">Customer Login</a></li>
+                    <li><a href="{% url 'washers:auth' %}">Washer Portal</a></li>
+                    <li><a href="/carwash-admin/">Admin Dashboard</a></li>
+                    <li><a href="{% url 'clients:signup' %}">Sign Up</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#services">Express Wash</a></li>
+                    <li><a href="#services">Premium Detail</a></li>
+                    <li><a href="#services">Protection Package</a></li>
+                    <li><a href="{% url 'clients:schedule_appointment' %}">Book Appointment</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul class="contact-info">
+                    <li><i class="fas fa-phone"></i> +254 700 000 000</li>
+                    <li><i class="fas fa-envelope"></i> info@moderncarwash.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</li>
+                    <li><i class="fas fa-clock"></i> Mon-Sat: 8AM - 6PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Modern Carwash. All rights reserved. | Built with Django</p>
+        </div>
+    </footer>
 
 </body>
 </html>
