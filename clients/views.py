@@ -448,6 +448,11 @@ def track_order_view(request, order_id):
         messages.error(request, 'Please log in to access this page.')
         return redirect('clients:login')
     
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to track orders.')
+        return redirect('clients:signup')
+    
     client_id = request.session.get('client_id')
     try:
         client = Client.objects.get(client_id=client_id)
@@ -563,6 +568,11 @@ def order_history_view(request):
         messages.error(request, 'Please log in to access this page.')
         return redirect('clients:login')
     
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to view order history.')
+        return redirect('clients:signup')
+    
     client_id = request.session.get('client_id')
     try:
         client = Client.objects.get(client_id=client_id)
@@ -594,6 +604,11 @@ def schedule_appointment_view(request):
     if 'client_id' not in request.session:
         messages.error(request, 'Please log in to schedule an appointment.')
         return redirect('clients:login')
+    
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to schedule appointments.')
+        return redirect('clients:signup')
     
     client_id = request.session.get('client_id')
     try:
@@ -680,6 +695,11 @@ def my_appointments_view(request):
     if 'client_id' not in request.session:
         messages.error(request, 'Please log in to view appointments.')
         return redirect('clients:login')
+    
+    # Check if guest mode
+    if request.session.get('is_guest', False):
+        messages.warning(request, 'Please sign up or log in to view appointments.')
+        return redirect('clients:signup')
     
     client_id = request.session.get('client_id')
     try:
