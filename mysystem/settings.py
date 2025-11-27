@@ -23,7 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%^-vmijx^xlzwhrmfyr9ybx()6&)4*7f$n957&(&^2@9jta5ve'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Automatically set DEBUG based on environment
+# DEBUG = True for local development, False for PythonAnywhere
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'horridhunk254.pythonanywhere.com']
 
@@ -60,7 +62,7 @@ ROOT_URLCONF = 'mysystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'clients' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

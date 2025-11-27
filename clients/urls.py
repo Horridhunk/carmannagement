@@ -3,7 +3,8 @@ from . import views
 
 app_name = 'clients'
 urlpatterns = [
-    path('', views.home_view, name='home'),  # Root URL goes to landing page
+    path('', views.index_view, name='home'),  # Root URL goes to index page
+    path('home/', views.home_view, name='home_links'),  # System links page
     path('clients/', views.clients, name='clients'),
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),

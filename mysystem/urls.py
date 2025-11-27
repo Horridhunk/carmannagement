@@ -24,6 +24,10 @@ from django.shortcuts import redirect
 def redirect_to_admin_login(request):
     return redirect('/carwash-admin/login/')
 
+# Custom error handlers
+handler404 = 'clients.views.custom_404'
+handler500 = 'clients.views.custom_500'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('carwash-admin/', include('admin.urls')),  # Custom admin login
