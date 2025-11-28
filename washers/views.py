@@ -79,7 +79,7 @@ def washer_dashboard_view(request):
     # Check if washer is logged in
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access the dashboard.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     # Get washer info from session
     washer_id = request.session.get('washer_id')
@@ -131,13 +131,13 @@ def washer_logout_view(request):
     # Clear the session
     request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('washers:login')
+    return redirect('washers:auth')
 
 def start_wash_view(request, order_id):
     """Start a wash order"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     try:
@@ -156,6 +156,7 @@ def start_wash_view(request, order_id):
         
     except Washer.DoesNotExist:
         messages.error(request, 'Washer account not found.')
+        return redirect('washers:auth')
     except WashOrder.DoesNotExist:
         messages.error(request, 'Order not found or not assigned to you.')
     except Exception as e:
@@ -167,7 +168,7 @@ def complete_wash_view(request, order_id):
     """Complete a wash order"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     try:
@@ -202,7 +203,7 @@ def toggle_availability_view(request):
     """Toggle washer availability status"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     try:
@@ -227,14 +228,14 @@ def washer_profile_view(request):
     """View and edit washer profile"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     try:
         washer = Washer.objects.get(washer_id=washer_id)
     except Washer.DoesNotExist:
         messages.error(request, 'Washer account not found.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     from .forms import WasherProfileForm, WasherPasswordChangeForm
     
@@ -338,7 +339,7 @@ def washer_profile_view(request):
 def debug_password_view(request):
     """Debug view to test password functionality"""
     if 'washer_id' not in request.session:
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     try:
@@ -394,14 +395,14 @@ def debug_password_view(request):
         return render(request, 'washers/debug_password.html', {'washer': washer})
         
     except Washer.DoesNotExist:
-        return redirect('washers:login')
+        return redirect('washers:auth')
 
 
 def washer_completed_orders_view(request):
     """View completed orders with client reviews"""
     if 'washer_id' not in request.session:
         messages.error(request, 'Please log in to access this page.')
-        return redirect('washers:login')
+        return redirect('washers:auth')
     
     washer_id = request.session.get('washer_id')
     washer_name = request.session.get('washer_name', 'Washer')
