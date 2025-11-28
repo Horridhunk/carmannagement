@@ -1,0 +1,42 @@
+========================================
+PYTHONANYWHERE DEPLOYMENT COMMANDS
+========================================
+
+After pushing to GitHub, run these on PythonAnywhere:
+
+1. Open Bash Console
+2. Run these commands:
+
+cd ~/carmannagement
+git pull origin master
+python manage.py collectstatic --noinput
+python manage.py migrate
+touch /var/www/horridhunk254_pythonanywhere_com_wsgi.py
+
+3. Go to Web tab and click "Reload" button
+
+========================================
+QUICK ONE-LINER:
+========================================
+
+cd ~/carmannagement && git pull origin master && python manage.py collectstatic --noinput && python manage.py migrate && echo "✅ Done! Now reload your web app."
+
+========================================
+FOR CSS CHANGES ONLY:
+========================================
+
+cd ~/carmannagement && git pull origin master && python manage.py collectstatic --noinput && echo "✅ Done! Now reload your web app."
+
+========================================
+SCHEDULED TASK COMMAND:
+========================================
+
+For the Tasks tab, use this command:
+
+cd ~/carmannagement && python manage.py create_time_slots --days 30
+
+Schedule: Daily at 12:00 AM (00:00)
+
+This creates time slots for the next 30 days.
+
+========================================
