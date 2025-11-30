@@ -30,7 +30,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'horridhunk.pythonanywhere.com', 'horridhunk254.pythonanywhere.com']
 
 # CSRF settings for PythonAnywhere
-CSRF_TRUSTED_ORIGINS = ['https://horridhunk254.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = ['https://horridhunk254.pythonanywhere.com','https://horridhunk.pythonanywhere.com']
 
 
 # Application definition
