@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-%^-vmijx^xlzwhrmfyr9ybx()6&)4*7f$n957&(&^2@9jta5ve
 # DEBUG = True for local development, False for PythonAnywhere
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'horridhunk254.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'horridhunk.pythonanywhere.com', 'horridhunk254.pythonanywhere.com']
 
 # CSRF settings for PythonAnywhere
 CSRF_TRUSTED_ORIGINS = ['https://horridhunk254.pythonanywhere.com']
